@@ -1,0 +1,117 @@
+﻿@model IEnumerable<OnClickSystem.Domain.Entities.Usuario>
+@{
+    ViewData["Title"] = "Gestão de Membros";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-gold fw-bold"><i class="bi bi-people-fill me-2"></i> Gestão de Membros</h3>
+        <span class="badge bg-dark border border-warning text-gold px-3 py-2">Total: @Model.Count()</span>
+    </div>
+
+    <div class="card bg-dark border-secondary shadow mb-4 p-3">
+        <div class="input-group">
+            <span class="input-group-text bg-black border-secondary text-gold"><i class="bi bi-search"></i></span>
+            <input type="text" id="buscaMembros" class="form-control bg-dark text-white border-secondary" placeholder="Pesquisar por nome, email ou cargo...">
+        </div>
+    </div>
+
+    <div class="card bg-dark border-secondary shadow">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle" id="tabelaMembros">
+                <thead>
+                    <tr class="text-secondary small">
+                        <th class="ps-4">MEMBRO</th>
+                        <th>NÍVEL ATUAL</th>
+                        <th class="text-center">ALTERAR HIERARQUIA</th>
+                        <th class="text-center">STATUS / AÇÕES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-secondary d-flex justify-content-center align-items-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-person text-white"></i>
+                                    </div>
+                                    <div>
+                                        <strong class="text-white d-block">
+                                            <a asp-action="Detalhes" asp-route-id="@user.ID" class="text-decoration-none text-white">
+                                                @user.Nome
+                                            </a>
+                                        </strong>
+                                        <small class="text-muted">@user.Email</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                @* Exibição amigável do perfil *@
+                                @if (user.Perfil == "Admin")
+                                {
+                                    <span class="badge bg-danger px-3">ADMIN</span>
+                                }
+                                else if (user.Perfil == "Comum")
+                                {
+                                    <span class="badge bg-warning text-dark px-3">AFILIADO</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info text-dark px-3">CLIENTE</span>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @* Form dedicado pra alterar a hierarquia daquele usuário *@
+                                <form asp-controller="Admin" asp-action="AlterarPerfil" method="post" class="d-flex justify-content-center gap-2">
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden" name="id" value="@user.ID" />
+
+                                    <select name="novoPerfil" class="form-select form-select-sm bg-dark text-white border-secondary" style="max-width: 150px;">
+                                        <option value="Admin" selected="@(user.Perfil == "Admin")">Administrador</option>
+                                        <option value="Comum" selected="@(user.Perfil == "Comum")">Afiliado</option>
+                                        <option value="Cliente" selected="@(user.Perfil == "Cliente")">Cliente</option>
+                                    </select>
+
+                                    <button type="submit" class="btn btn-gold btn-sm px-3">ATUALIZAR</button>
+                                </form>
+
+                            </td>
+
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <form asp-action="AlternarStatus" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@user.ID" />
+                                        <button type="submit" class="btn btn-sm @(user.Ativo ? "btn-success" : "btn-danger")">
+                                            @(user.Ativo ? "ATIVO" : "PENDENTE")
+                                        </button>
+                                    </form>
+
+                                    <form asp-action="Deletar" method="post" onsubmit="return confirm('Tem certeza absoluta?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@user.ID" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            ativarPesquisa("buscaMembros", "tabelaMembros");
+        });
+    </script>
+}

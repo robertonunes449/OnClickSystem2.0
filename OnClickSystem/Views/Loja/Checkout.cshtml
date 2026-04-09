@@ -1,0 +1,92 @@
+﻿@model List<OnClickSystem.Domain.Entities.CarrinhoItem>
+@{
+    ViewData["Title"] = "Checkout";
+    decimal total = Model.Sum(x => x.Subtotal);
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card card-premium p-4 shadow-lg">
+
+            <div class="d-flex flex-column mb-4 pb-4 border-bottom border-secondary">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-dark rounded p-3 me-3 border border-warning">
+                        <i class="bi bi-cart-check text-gold fs-1"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted text-uppercase">Resumo do Pedido</small>
+                        <h3 class="text-white fw-bold mb-0">Checkout Final</h3>
+                    </div>
+                </div>
+
+                <div class="bg-dark rounded p-3 mb-3">
+                    @foreach (var item in Model)
+                    {
+                        <div class="d-flex justify-content-between text-muted small border-bottom border-secondary pb-2 mb-2">
+                            <span>@item.Nome</span>
+                            <span>R$ @item.Preco.ToString("N2")</span>
+                        </div>
+                    }
+                    <div class="d-flex justify-content-between text-success fw-bold fs-4 mt-2">
+                        <span>TOTAL A PAGAR:</span>
+                        <span>R$ @total.ToString("N2")</span>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="text-white mb-3"><i class="bi bi-wallet2 text-gold"></i> Escolha como pagar:</h5>
+
+            <div class="row g-2 mb-4">
+                <div class="col-6">
+                    <input type="radio" class="btn-check" name="metodoPagamento" id="btnPix" autocomplete="off" checked onchange="mudarPagamento('pix')">
+                    <label class="btn btn-outline-light w-100 py-3 border-secondary" for="btnPix">PIX</label>
+                </div>
+                <div class="col-6">
+                    <input type="radio" class="btn-check" name="metodoPagamento" id="btnCard" autocomplete="off" onchange="mudarPagamento('card')">
+                    <label class="btn btn-outline-light w-100 py-3 border-secondary" for="btnCard">Cartão</label>
+                </div>
+            </div>
+
+            <div id="areaPix" class="bg-dark p-3 rounded border border-secondary mb-4 text-center">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=OnClickSystem-Total-@total" class="img-fluid border border-white p-1 bg-white rounded mb-3" />
+                <br>
+                <p class="text-white">Pagamento de <strong>R$ @total.ToString("N2")</strong></p>
+            </div>
+
+            <div id="areaCard" style="display:none;" class="bg-dark p-3 rounded border border-secondary mb-4">
+                <p class="text-white">Dados do Cartão (Simulação)</p>
+                <input type="text" class="form-control mb-2" placeholder="Número do Cartão">
+            </div>
+
+            <form action="/Loja/ConfirmarCompra" method="post" id="formPagamento">
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-gold py-3 fs-5 shadow fw-bold pulse-button">
+                        <i class="bi bi-check-circle-fill me-2"></i> PAGAR R$ @total.ToString("N2")
+                    </button>
+                    <a href="/Loja/Carrinho" class="btn btn-link text-muted text-decoration-none">Voltar ao Carrinho</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function mudarPagamento(tipo) {
+        if (tipo === 'pix') {
+            document.getElementById('areaPix').style.display = 'block';
+            document.getElementById('areaCard').style.display = 'none';
+        } else {
+            document.getElementById('areaPix').style.display = 'none';
+            document.getElementById('areaCard').style.display = 'block';
+        }
+    }
+    document.getElementById('formPagamento').addEventListener('submit', function() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    });
+</script>
+
+<div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center; flex-direction:column;">
+    <div class="spinner-border text-gold" style="width: 4rem; height: 4rem;" role="status"></div>
+    <h4 class="text-white mt-3 fw-bold animate-pulse">Processando Pagamento...</h4>
+</div>

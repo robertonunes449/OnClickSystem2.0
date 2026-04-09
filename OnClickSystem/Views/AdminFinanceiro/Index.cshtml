@@ -1,0 +1,124 @@
+﻿@model IEnumerable<OnClickSystem.Domain.Entities.SolicitacaoSaque>
+@{
+    ViewData["Title"] = "Gestão Financeira";
+}
+
+<div class="container-fluid">
+    <h2 class="text-gold m-0 fw-bold"><i class="bi bi-shield-lock-fill"></i> Administração Financeira</h2>
+    <br />
+</div>
+
+<div class="card bg-dark border-gold shadow mb-4">
+    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">       
+        <span class="badge bg-dark">@Model.Count(x => x.Status == "Pendente") Pendentes</span>
+    </div>
+
+    <div class="p-3 border-bottom border-secondary">
+        <div class="input-group">
+            <span class="input-group-text bg-black border-secondary text-gold"><i class="bi bi-search"></i></span>
+            <input type="text" id="buscaAdminFin" class="form-control bg-black text-white border-secondary" placeholder="Buscar por usuário, chave pix ou status...">
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-hover mb-0 align-middle" id="tabelaAdminFin">
+            <thead class="text-secondary small text-uppercase">
+                <tr><th>Data</th><th>Usuário</th><th>Detalhes PIX</th><th>Valor</th><th>Status</th><th class="text-end">Ações</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="@(item.Status == "Pendente" ? "table-active" : "")">
+                        <td>@item.DataSolicitacao.ToString("dd/MM/yy")<br><small class="text-muted">@item.DataSolicitacao.ToString("HH:mm")</small></td>
+
+                        <td>
+                            <strong class="text-white">@item.Usuario?.Nome</strong><br>
+                            <small class="text-muted">@item.Usuario?.Email</small>
+                        </td>
+
+                        <td>
+                            <span class="text-warning">@item.TipoChave:</span> <span class="text-white select-all">@item.ChavePix</span>
+                        </td>
+
+                        <td class="fw-bold fs-5 text-white">R$ @item.Valor.ToString("N2")</td>
+
+                        <td>
+                            @if (item.Status == "Pendente")
+                            {
+                                <span class="badge bg-warning text-dark blink">PENDENTE</span>
+                            }
+                            else if (item.Status == "Pago")
+                            {
+                                <span class="badge bg-success">PAGO</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">REJEITADO</span>
+                            }
+                        </td>
+
+                        <td class="text-end">
+                            @if (item.Status == "Pendente")
+                            {
+                                <div class="btn-group">
+                                    <form asp-action="AprovarSaque" asp-route-id="@item.ID">
+                                        <button onclick="return confirm('Confirmar que você já fez o PIX?')" class="btn btn-success btn-sm fw-bold me-1">
+                                            <i class="bi bi-check2"></i> PAGAR
+                                        </button>
+                                    </form>
+
+                                    <form asp-action="RejeitarSaque" asp-route-id="@item.ID">
+                                        <button onclick="return confirm('Rejeitar e devolver o dinheiro ao usuário?')" class="btn btn-outline-danger btn-sm">
+                                            <i class="bi bi-x"></i> REJEITAR
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-muted small"><i class="bi bi-lock-fill"></i> Processado</span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="6" class="text-center py-5 text-muted">Nenhum pedido de saque.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .blink {
+        animation: piscar 1.5s infinite;
+    }
+
+    @@keyframes piscar {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .select-all {
+        user-select: all;
+        cursor: pointer;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            ativarPesquisa("buscaAdminFin", "tabelaAdminFin");
+        });
+    </script>
+}

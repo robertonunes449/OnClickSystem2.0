@@ -1,0 +1,42 @@
+﻿@model OnClickSystem.Domain.Entities.Kit
+@{
+    ViewData["Title"] = "Editar Kit";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card card-premium p-4">
+            <h4 class="text-gold mb-4"><i class="bi bi-pencil-square"></i> Editar Kit</h4>
+
+            <form action="/Kits/Editar" method="post">
+                <input type="hidden" name="ID" value="@Model.ID" />
+
+                <div class="mb-3">
+                    <label class="text-secondary small">NOME</label>
+                    <input type="text" name="Nome" value="@Model.Nome" class="form-control form-control-premium" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="text-secondary small">DESCRIÇÃO</label>
+                    <textarea name="Descricao" class="form-control form-control-premium" rows="3">@Model.Descricao</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="text-secondary small">PREÇO</label>
+                    <input type="text" name="Preco" value="@Model.Preco.ToString("N2")" class="form-control form-control-premium" required />
+                    <small class="text-muted">Use vírgula para centavos</small>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input class="form-check-input bg-dark border-secondary" type="checkbox" name="Ativo" value="true" @(Model.Ativo ? "checked" : "") id="ativoCheck">
+                    <label class="form-check-label text-white" for="ativoCheck">Ativo para venda</label>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-gold">Atualizar</button>
+                    <a href="/Kits/Index" class="btn btn-outline-secondary">Voltar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

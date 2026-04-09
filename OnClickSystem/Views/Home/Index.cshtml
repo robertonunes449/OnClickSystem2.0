@@ -1,0 +1,212 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    bool estaAtivo = ViewBag.NomeKitAtual != "Membro Gratuito" || ViewBag.EhAdmin;
+
+    var urlBase = $"{Context.Request.Scheme}://{Context.Request.Host}";
+    var idLogado = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var meuLink = $"{urlBase}/Cadastro/Novo?patrocinador={idLogado}";
+}
+
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1 class="display-5 fw-bold text-gold">Olá, @ViewBag.NomeUsuario</h1>
+        <p class="text-muted lead">Bem-vindo ao seu escritório virtual.</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <span class="badge bg-dark border border-warning text-warning fs-6 px-3 py-2 rounded-pill shadow">
+            <i class="bi bi-gem me-1"></i> @(ViewBag.NomeKitAtual ?? "Carregando...")
+        </span>
+    </div>
+</div>
+
+@if (!estaAtivo)
+{
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-premium p-5 text-center shadow-lg border-danger">
+                <div class="mb-3">
+                    <i class="bi bi-exclamation-circle text-danger" style="font-size: 4rem;"></i>
+                </div>
+                <h2 class="fw-bold text-white">Sua conta está Pendente</h2>
+                <p class="text-muted fs-5">Para liberar seu Link de Indicação e começar a ganhar comissões, você precisa ativar um Kit.</p>
+
+                <div class="mt-4">
+                    <a href="/Loja/Index" class="btn btn-gold btn-lg px-5 py-3 fw-bold animate-pulse">
+                        <i class="bi bi-cart-fill me-2"></i> IR PARA A LOJA E ATIVAR
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card card-stat h-100 shadow-sm border-start border-success border-4">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-2">Saldo Disponível</h6>
+                        <h3 class="fw-bold text-success">R$ @(((decimal)ViewBag.MeusGanhos).ToString("N2"))</h3>
+                        <small class="text-muted">Pronto para saque</small>
+                    </div>
+                    <div class="icon-stat"><i class="bi bi-wallet2 text-success"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-stat h-100 shadow-sm border-start border-info border-4">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-2">Minha Equipa</h6>
+                        <h3 class="fw-bold text-white">@ViewBag.MinhaRedeTotal</h3>
+                        <small class="text-info"><i class="bi bi-person-plus-fill"></i> @ViewBag.Diretos Diretos</small>
+                    </div>
+                    <div class="icon-stat"><i class="bi bi-people-fill text-info"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-stat h-100 shadow-sm border-start border-warning border-4">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-2">Saques Pendentes</h6>
+                        <h3 class="fw-bold text-warning">R$ @(((decimal)ViewBag.SaquesPendentes).ToString("N2"))</h3>
+                        <small class="text-muted">Aguardando aprovação</small>
+                    </div>
+                    <div class="icon-stat"><i class="bi bi-hourglass-split text-warning"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-stat h-100 shadow-sm border-start border-gold border-4" style="background: #1a1a1a;">
+                <div class="card-body text-center d-flex flex-column justify-content-center p-3">
+                    <h6 class="text-gold mb-3 fw-bold text-uppercase"><i class="bi bi-link-45deg"></i> Link de Indicação</h6>
+                    <button class="btn btn-gold btn-sm w-100 fw-bold rounded-pill" onclick="copiarLinkHome()">
+                        <i class="bi bi-copy"></i> COPIAR LINK
+                    </button>
+                    <input type="hidden" value="@meuLink" id="linkInputHome" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="card card-premium h-100">
+                <div class="card-header bg-dark border-secondary py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white"><i class="bi bi-clock-history text-gold me-2"></i> Últimas Transações</h5>
+                    <a asp-controller="Financeiro" asp-action="Index" class="btn btn-outline-secondary btn-sm">Ver Extrato</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0 align-middle">
+                            <thead class="text-muted small text-uppercase">
+                                <tr>
+                                    <th class="ps-4">Data</th>
+                                    <th>Descrição</th>
+                                    <th>Tipo</th>
+                                    <th class="text-end pe-4">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    var transacoes = ViewBag.UltimasTransacoes as List<OnClickSystem.Domain.Entities.Transacao>;
+                                    if (transacoes != null && transacoes.Any())
+                                    {
+                                        foreach (var t in transacoes)
+                                        {
+                                            <tr>
+                                                <td class="ps-4 text-white-50">@t.Data.ToString("dd/MM/yyyy HH:mm")</td>
+                                                <td class="text-white">@t.Descricao</td>
+                                                <td>
+                                                    @if (t.Tipo == "Credito")
+                                                    {
+                                                        <span class="badge bg-success bg-opacity-25 text-success border border-success rounded-pill px-2">Crédito</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-danger bg-opacity-25 text-danger border border-danger rounded-pill px-2">Débito</span>
+                                                    }
+                                                </td>
+                                                <td class="text-end pe-4 fw-bold @(t.Tipo == "Credito" ? "text-success" : "text-danger")">
+                                                    @(t.Tipo == "Credito" ? "+" : "-") R$ @t.Valor.ToString("N2")
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="4" class="text-center py-5 text-muted">
+                                                <i class="bi bi-receipt display-4 d-block mb-3 opacity-25"></i>
+                                                Nenhuma transação encontrada ainda.
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-premium h-100">
+                <div class="card-header bg-dark border-secondary py-3">
+                    <h5 class="mb-0 text-white"><i class="bi bi-bell text-warning me-2"></i> Central de Avisos</h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush bg-transparent">
+                        <li class="list-group-item bg-transparent text-white border-secondary p-4 d-flex">
+                            <i class="bi bi-rocket-takeoff text-primary fs-3 me-3"></i>
+                            <div>
+                                <strong class="fs-6">Expanda sua Rede!</strong>
+                                <div class="small text-muted mt-1">Envie o seu Link de Indicação para amigos e ganhe comissões até ao 3º nível.</div>
+                            </div>
+                        </li>
+                        <li class="list-group-item bg-transparent text-white border-secondary p-4 d-flex">
+                            <i class="bi bi-safe text-success fs-3 me-3"></i>
+                            <div>
+                                <strong class="fs-6">Saques Rápidos</strong>
+                                <div class="small text-muted mt-1">Peça o saque dos seus ganhos no menu Financeiro assim que tiver saldo disponível.</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copiarLinkHome() {
+            var copyText = document.getElementById("linkInputHome");
+            navigator.clipboard.writeText(copyText.value);
+            alert("Link de indicação copiado com sucesso!");
+        }
+    </script>
+
+    <style>
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+            }
+        }
+    </style>
+}

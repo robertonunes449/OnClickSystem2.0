@@ -1,0 +1,113 @@
+﻿@model IEnumerable<OnClickSystem.Domain.Entities.Transacao>
+@{
+    ViewData["Title"] = "Financeiro";
+    var meusSaques = ViewBag.MeusSaques as IEnumerable<OnClickSystem.Domain.Entities.SolicitacaoSaque>;
+}
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success text-center fw-bold">@TempData["Sucesso"]</div>
+}
+
+<div class="card bg-dark border-warning mb-4 shadow-lg text-center p-5">
+    <h6 class="text-muted text-uppercase">Saldo Disponível</h6>
+    <h1 class="text-gold display-3 fw-bold mb-4">R$ @(((decimal)ViewBag.SaldoTotal).ToString("N2"))</h1>
+
+    <div>
+        <a href="/Financeiro/SolicitarSaque" class="btn btn-warning btn-lg fw-bold px-5 rounded-pill shadow">
+            <i class="bi bi-cash-coin me-2"></i> SOLICITAR SAQUE
+        </a>
+    </div>
+</div>
+
+<ul class="nav nav-tabs border-secondary mb-3" id="financasTab" role="tablist">
+    <li class="nav-item">
+        <button class="nav-link active text-warning bg-dark border-secondary" id="extrato-tab" data-bs-toggle="tab" data-bs-target="#extrato" type="button">
+            <i class="bi bi-list-ul"></i> Extrato Detalhado
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link text-white bg-dark border-secondary" id="saques-tab" data-bs-toggle="tab" data-bs-target="#saques" type="button">
+            <i class="bi bi-bank"></i> Meus Saques
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="myTabContent">
+
+    <div class="tab-pane fade show active" id="extrato">
+        <div class="mb-3">
+            <input type="text" id="buscaExtrato" class="form-control bg-dark text-white border-secondary" placeholder="Pesquisar no extrato...">
+        </div>
+
+        <div class="card bg-dark shadow">
+            <table class="table table-dark table-hover mb-0" id="tabelaExtrato">
+                <thead class="text-gold"><tr><th>Data</th><th>Descrição</th><th class="text-end">Valor</th></tr></thead>
+                <tbody>
+                    @foreach (var t in Model)
+                    {
+                        <tr>
+                            <td>@t.Data.ToString("dd/MM HH:mm")</td>
+                            <td>@t.Descricao <span class="badge @(t.Tipo == "Credito" ? "bg-success" : "bg-danger")">@t.Tipo</span></td>
+                            <td class="text-end fw-bold @(t.Tipo == "Credito" ? "text-success" : "text-danger")">
+                                @(t.Tipo == "Credito" ? "+" : "-") R$ @t.Valor.ToString("N2")
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="3" class="text-center py-4 text-muted">Nenhuma transação.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="saques">
+        <div class="card bg-dark shadow">
+            <table class="table table-dark table-striped mb-0">
+                <thead class="text-white"><tr><th>Data Pedido</th><th>PIX</th><th>Status</th><th class="text-end">Valor</th></tr></thead>
+                <tbody>
+                    @if (meusSaques != null)
+                    {
+                        @foreach (var s in meusSaques)
+                        {
+                            <tr>
+                                <td>@s.DataSolicitacao.ToString("dd/MM/yy")</td>
+                                <td>@s.ChavePix <small class="text-muted">(@s.TipoChave)</small></td>
+                                <td>
+                                    @if (s.Status == "Pendente")
+                                    {
+                                        <span class="badge bg-warning text-dark">PENDENTE</span>
+                                    }
+                                    else if (s.Status == "Pago")
+                                    {
+                                        <span class="badge bg-success">PAGO</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">REJEITADO</span>
+                                    }
+                                </td>
+                                <td class="text-end">R$ @s.Valor.ToString("N2")</td>
+                            </tr>
+                        }
+                    }
+                    @if (meusSaques == null || !meusSaques.Any())
+                    {
+                        <tr><td colspan="4" class="text-center py-4 text-muted">Nenhum saque solicitado.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            ativarPesquisa("buscaExtrato", "tabelaExtrato");
+        });
+    </script>
+}

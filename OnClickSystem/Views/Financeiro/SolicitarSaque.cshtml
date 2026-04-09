@@ -1,0 +1,44 @@
+﻿@model OnClickSystem.Domain.Entities.SolicitacaoSaque
+@{
+    ViewData["Title"] = "Solicitar Saque";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card bg-dark border-warning shadow-lg">
+                <div class="card-header bg-gold text-dark fw-bold text-center">
+                    <i class="bi bi-bank me-2"></i> SOLICITAR SAQUE
+                </div>
+                <div class="card-body text-white">
+                    @if (TempData["Erro"] != null)
+                    {
+                        <div class="alert alert-danger text-center">@TempData["Erro"]</div>
+                    }
+
+                    <form asp-action="ConfirmarSaque" method="post">
+                        <div class="mb-3">
+                            <label class="form-label text-gold">Valor (R$)</label>
+                            <input asp-for="Valor" type="number" step="0.01" class="form-control bg-black text-white border-secondary" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-gold">Chave PIX</label>
+                            <input asp-for="ChavePix" type="text" class="form-control bg-black text-white border-secondary" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-gold">Tipo de Chave</label>
+                            <select asp-for="TipoChave" class="form-select bg-black text-white border-secondary">
+                                <option>CPF</option>
+                                <option>Email</option>
+                                <option>Telefone</option>
+                                <option>Aleatória</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100 fw-bold">CONFIRMAR</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary w-100 mt-2">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

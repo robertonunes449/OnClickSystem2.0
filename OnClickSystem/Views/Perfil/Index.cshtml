@@ -1,0 +1,114 @@
+﻿@model OnClickSystem.Domain.Entities.Usuario
+@{
+    ViewData["Title"] = "Meu Perfil";
+}
+
+<div class="container mt-4 text-white">
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card card-premium text-center mb-4">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="bi bi-person-circle" style="font-size: 4rem; color: #d4af37;"></i>
+                    </div>
+
+                    <h3 class="card-title text-gold">@Model.Nome</h3>
+                    <p class="text-secondary">@Model.Email</p>
+
+                    <hr style="border-color: #d4af37;" />
+
+                    <div class="h4 text-gold-bright">
+                        R$ @(ViewBag.SaldoDisponivel != null ? ViewBag.SaldoDisponivel.ToString("N2") : "0,00")
+                    </div>
+                    <small class="text-secondary">Saldo Disponível</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card card-premium">
+                <div class="card-header bg-transparent border-0 pt-3 pb-0">
+                    <h5 class="mb-0 text-gold"><i class="bi bi-pencil-square me-2"></i>Editar Meus Dados</h5>
+                </div>
+
+                <div class="card-body">
+
+                    @if (TempData["Sucesso"] != null)
+                    {
+                        <div class="alert alert-success bg-transparent border-success text-success">@TempData["Sucesso"]</div>
+                    }
+                    @if (TempData["Erro"] != null)
+                    {
+                        <div class="alert alert-danger bg-transparent border-danger text-danger">@TempData["Erro"]</div>
+                    }
+
+                    <form asp-action="Salvar" method="post">
+
+                        <h6 class="text-gold mb-3 mt-2 border-bottom border-secondary pb-2" style="border-color: #333 !important;">
+                            Dados Pessoais
+                        </h6>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted">Nome Completo</label>
+                                <input asp-for="Nome" class="form-control form-control-premium" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted">CPF</label>
+                                <input asp-for="CPF" class="form-control form-control-premium" placeholder="000.000.000-00" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted">Telefone / WhatsApp</label>
+                                <input asp-for="Telefone" class="form-control form-control-premium" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted">E-mail de Acesso</label>
+                                <input asp-for="Email" type="email" class="form-control form-control-premium" required />
+                                <small class="text-secondary" style="font-size: 0.8em;">Use o novo e-mail no próximo login.</small>
+                            </div>
+                        </div>
+
+                        <h6 class="text-gold mb-3 mt-4 border-bottom border-secondary pb-2" style="border-color: #333 !important;">
+                            Dados para Recebimento (PIX)
+                        </h6>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="text-muted">Tipo de Chave</label>
+                                <select asp-for="TipoChavePix" class="form-control form-control-premium">
+                                    <option value="CPF">CPF</option>
+                                    <option value="Email">E-mail</option>
+                                    <option value="Celular">Celular</option>
+                                    <option value="Aleatoria">Chave Aleatória</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label class="text-muted">Chave PIX</label>
+                                <input asp-for="ChavePix" class="form-control form-control-premium" placeholder="Digite sua chave pix aqui..." />
+                            </div>
+                        </div>
+
+                        <h6 class="text-gold mb-3 mt-4 border-bottom border-secondary pb-2" style="border-color: #333 !important;">
+                            Segurança
+                        </h6>
+
+                        <div class="form-group mb-4">
+                            <label class="text-muted">Nova Senha</label>
+                            <input type="password" name="NovaSenha" class="form-control form-control-premium" placeholder="Deixe em branco para manter a atual" />
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-gold btn-lg shadow">
+                                SALVAR ALTERAÇÕES
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

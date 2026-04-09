@@ -1,0 +1,80 @@
+﻿@model OnClickSystem.Domain.Entities.Usuario
+
+@{
+    ViewData["Title"] = "Editar Usuário";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <div class="card card-premium shadow border-gold">
+                <div class="card-header bg-black border-bottom border-secondary">
+                    <h4 class="mb-0 text-gold"><i class="fas fa-user-edit me-2"></i>Editar Usuário</h4>
+                </div>
+
+                <div class="card-body bg-dark text-white">
+                    <form asp-action="Editar" method="post">
+                        <input type="hidden" asp-for="ID" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Nome" class="form-label text-gold-bright small fw-bold">Nome Completo</label>
+                                <input asp-for="Nome" class="form-control bg-black text-white border-secondary" required />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email" class="form-label text-gold-bright small fw-bold">E-mail</label>
+                                <input asp-for="Email" type="email" class="form-control bg-black text-white border-secondary" required />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Perfil" class="form-label text-gold-bright small fw-bold">Nível de Acesso</label>
+                                <select asp-for="Perfil" class="form-select bg-black text-white border-secondary">
+                                    <option value="Comum">Usuário Comum (Associado)</option>
+                                    <option value="Admin">Administrador</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-gold-bright small fw-bold">Redefinir Senha</label>
+                                <input type="password" name="NovaSenha" class="form-control bg-black text-white border-secondary" placeholder="Deixe em branco para manter a atual" />
+                            </div>
+                        </div>
+
+                        <hr class="border-secondary opacity-25">
+                        <h6 class="text-muted text-uppercase small mb-3">Dados Financeiros (PIX)</h6>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="TipoChavePix" class="form-label small">Tipo de Chave</label>
+                                <select asp-for="TipoChavePix" class="form-select bg-black text-white border-secondary form-select-sm">
+                                    <option value="CPF">CPF</option>
+                                    <option value="Email">E-mail</option>
+                                    <option value="Celular">Celular</option>
+                                    <option value="Aleatoria">Chave Aleatória</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label asp-for="ChavePix" class="form-label small">Chave PIX</label>
+                                <input asp-for="ChavePix" class="form-control bg-black text-white border-secondary form-control-sm" />
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Usuarios" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Voltar
+                            </a>
+                            <button type="submit" class="btn btn-gold px-4">
+                                <i class="fas fa-save me-2"></i> Salvar Alterações
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

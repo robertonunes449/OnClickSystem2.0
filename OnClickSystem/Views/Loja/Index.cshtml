@@ -1,0 +1,39 @@
+﻿@model IEnumerable<OnClickSystem.Domain.Entities.Kit>
+@{
+    ViewData["Title"] = "Loja de Kits";
+}
+
+<div class="text-center mb-5">
+    <h2 class="fw-bold text-gold"><i class="bi bi-cart-fill text-gold"></i> Escolha seu Plano</h2>
+    <p class="text-muted">Adicione os kits ao carrinho e monte sua estratégia.</p>
+</div>
+
+<div class="row justify-content-center g-4">
+    @foreach (var kit in Model)
+    {
+        <div class="col-md-4">
+            <div class="card card-premium h-100 shadow-lg position-relative border-warning">
+                <div class="card-body text-center p-5 d-flex flex-column">
+                    <div class="mb-3">
+                        <i class="bi bi-box-seam text-gold" style="font-size: 4rem;"></i>
+                    </div>
+                    <h3 class="fw-bold text-white mb-3">@kit.Nome</h3>
+                    <div class="display-5 fw-bold text-gold mb-3">
+                        <small class="fs-6 text-muted align-top">R$</small>@kit.Preco.ToString("N2")<small class="fs-6 text-muted"></small>
+                    </div>
+                    <p class="text-muted mb-4 flex-grow-1">@kit.Descricao</p>
+
+                    <a href="/Loja/AdicionarAoCarrinho/@kit.ID" class="btn btn-outline-warning btn-lg w-100 fw-bold shadow">
+                        <i class="bi bi-cart-plus"></i> ADICIONAR AO CARRINHO
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="position-fixed bottom-0 end-0 p-4" style="z-index: 100;">
+    <a href="/Loja/Carrinho" class="btn btn-gold btn-lg shadow rounded-pill px-4">
+        <i class="bi bi-cart-check-fill"></i> Ver Carrinho
+    </a>
+</div>

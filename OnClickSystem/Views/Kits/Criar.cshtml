@@ -1,0 +1,42 @@
+﻿@model OnClickSystem.Domain.Entities.Kit
+@{
+    ViewData["Title"] = "Novo Kit";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card card-premium p-4">
+            <h4 class="text-gold mb-4"><i class="bi bi-plus-circle"></i> Cadastrar Novo Kit</h4>
+
+            <form action="/Kits/Criar" method="post">
+
+                <div class="mb-3">
+                    <label class="text-secondary small">NOME DO PRODUTO</label>
+                    <input type="text" name="Nome" class="form-control form-control-premium" required placeholder="Ex: Kit Diamante" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="text-secondary small">DESCRIÇÃO</label>
+                    <textarea name="Descricao" class="form-control form-control-premium" rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="text-secondary small">PREÇO (R$)</label>
+                    <input type="number" name="Preco" class="form-control form-control-premium" required step="0.01" placeholder="0,00" />
+                </div>
+
+                <div class="form-check mb-4">
+                    <input class="form-check-input bg-dark border-secondary" type="checkbox" name="Ativo" value="true" checked id="ativoCheck">
+                    <label class="form-check-label text-white" for="ativoCheck">
+                        Produto disponível para venda imediata
+                    </label>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-gold">Salvar Produto</button>
+                    <a href="/Kits/Index" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

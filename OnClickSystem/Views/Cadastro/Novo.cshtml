@@ -1,0 +1,149 @@
+﻿@model OnClickSystem.Domain.Entities.Usuario
+
+@{
+    // Define layout de Login (sem menus)
+    ViewData["Title"] = "Nova Conta";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+            <div class="card card-premium shadow-lg border-gold">
+                <div class="card-body p-4 p-md-5">
+
+                    <div class="text-center mb-4">
+                        <div class="icon-box-login mb-2">
+                            <i class="bi bi-person-badge text-gold" style="font-size: 3rem;"></i>
+                        </div>
+                        <h3 class="text-gold fw-bold">Criar Conta</h3>
+                        <p class="text-muted small">Preencha seus dados para começar.</p>
+                    </div>
+
+                    @if (ViewBag.PatrocinadorNome != null)
+                    {
+                        <div class="alert alert-dark border-warning d-flex align-items-center mb-4 shadow-sm" role="alert">
+                            <i class="bi bi-star-fill text-gold fs-3 me-3"></i>
+                            <div>
+                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Patrocinador(a)</small>
+                                <strong class="text-white fs-5">@ViewBag.PatrocinadorNome</strong>
+                            </div>
+                        </div>
+                    }
+
+                    @if (ViewBag.Erro != null)
+                    {
+                        <div class="alert alert-danger small py-2 border-0 shadow-sm"><i class="bi bi-exclamation-circle me-2"></i>@ViewBag.Erro</div>
+                    }
+
+                    <form asp-action="Registrar" method="post" onsubmit="return validarSenha()">
+                        <input type="hidden" name="ID_Patrocinador" value="@ViewBag.PatrocinadorID" />
+
+                        <div class="mb-3">
+                            <label class="form-label text-gold-bright small fw-bold">Nome Completo</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-person"></i></span>
+                                <input asp-for="Nome" class="form-control form-control-premium" placeholder="Ex: João da Silva" required />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-gold-bright small fw-bold">CPF</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-card-text"></i></span>
+                                    <input type="text" name="CPF" id="cpf" class="form-control form-control-premium" placeholder="000.000.000-00" maxlength="14" required oninput="mascaraCPF(this)" />
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-gold-bright small fw-bold">Celular / WhatsApp</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-whatsapp"></i></span>
+                                    <input type="text" name="Telefone" id="telefone" class="form-control form-control-premium" placeholder="(00) 90000-0000" maxlength="15" required oninput="mascaraTelefone(this)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-gold-bright small fw-bold">E-mail</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Email" type="email" class="form-control form-control-premium" placeholder="seu@email.com" required />
+                            </div>
+                        </div>
+
+                        <hr class="border-secondary opacity-25 my-4">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-gold-bright small fw-bold">Crie uma Senha</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-lock"></i></span>
+                                    <input asp-for="Senha" id="senha" type="password" class="form-control form-control-premium" placeholder="******" required minlength="6" />
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label text-gold-bright small fw-bold">Confirme a Senha</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-check-lg"></i></span>
+                                    <input type="password" id="confirmaSenha" class="form-control form-control-premium" placeholder="Repita a senha" required />
+                                </div>
+                                <div id="erroSenha" class="text-danger small mt-1 d-none">As senhas não conferem!</div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mb-4">
+                            <button type="submit" class="btn btn-gold btn-lg shadow fw-bold">
+                                FINALIZAR CADASTRO <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+
+                        <div class="text-center">
+                            <a asp-controller="Login" asp-action="Index" class="text-decoration-none text-secondary small">
+                                Já tem uma conta? <span class="text-gold fw-bold">Acesse aqui</span>
+                            </a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Validação de Senha (Impede o envio se não bater)
+    function validarSenha() {
+        var s1 = document.getElementById("senha").value;
+        var s2 = document.getElementById("confirmaSenha").value;
+        var msg = document.getElementById("erroSenha");
+
+        if (s1 !== s2) {
+            msg.classList.remove("d-none"); // Mostra erro
+            document.getElementById("confirmaSenha").focus();
+            return false; // Bloqueia o formulário
+        }
+        return true; // Deixa passar
+    }
+
+    // 2. Máscara de CPF (000.000.000-00)
+    function mascaraCPF(i) {
+        var v = i.value;
+        if(isNaN(v[v.length-1])){ // impede entrar outro caractere que não seja número
+           i.value = v.substring(0, v.length-1);
+           return;
+        }
+        i.setAttribute("maxlength", "14");
+        if (v.length == 3 || v.length == 7) i.value += ".";
+        if (v.length == 11) i.value += "-";
+    }
+
+    // 3. Máscara de Telefone ( (00) 90000-0000 )
+    function mascaraTelefone(input) {
+        var v = input.value.replace(/\D/g,""); // Remove tudo o que não é dígito
+        v = v.replace(/^(\d\d)(\d)/g,"($1) $2"); // Coloca parênteses em volta dos dois primeiros dígitos
+        v = v.replace(/(\d{5})(\d)/,"$1-$2"); // Coloca hífen entre o quarto e o quinto dígitos
+        input.value = v;
+    }
+</script>

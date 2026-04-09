@@ -1,0 +1,253 @@
+﻿/* ======================================================
+   ARQUIVO: premium.css
+   TEMA: Black & Gold (Luxo) - VERSÃO NAVBAR FIXA
+   ====================================================== */
+
+/* --- 1. CONFIGURAÇÕES GERAIS E VARIÁVEIS --- */
+:root {
+    --navbar-height: 70px; /* Altura da barra fixa no topo */
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* O corpo ganha padding no topo para não esconder conteúdo atrás da barra */
+body {
+    padding-top: var(--navbar-height);
+    overflow: hidden; /* A página inteira NÃO rola. Quem rola são os painéis internos. */
+    background-color: #f8f9fa;
+}
+
+/* --- 2. UTILITÁRIOS DE COR --- */
+h4, .text-gold {
+    color: #d4af37 !important;
+}
+
+.text-gold-bright {
+    color: #ffd700 !important;
+}
+
+.bg-gold {
+    background-color: #d4af37 !important;
+}
+
+/* --- 3. TELA DE LOGIN --- */
+.body-login {
+    padding-top: 0; /* Login não tem menu fixo */
+    overflow: auto;
+    background: radial-gradient(circle at center, #2b2b2b 0%, #000000 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-premium {
+    background-color: #111;
+    border: 1px solid #d4af37;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+    border-radius: 15px;
+    width: 100%;
+}
+
+.card-login {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.form-control-premium {
+    background-color: #222 !important;
+    border: 1px solid #444 !important;
+    color: #fff !important;
+}
+
+    .form-control-premium:focus {
+        border-color: #d4af37 !important;
+        box-shadow: 0 0 5px rgba(212, 175, 55, 0.5) !important;
+    }
+
+.btn-gold {
+    background: linear-gradient(45deg, #b8860b, #d4af37, #ffd700, #b8860b);
+    background-size: 300% 300%;
+    border: none;
+    color: #000;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.4s ease-in-out;
+    animation: gradientAnim 5s ease infinite;
+}
+
+    .btn-gold:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 15px #d4af37;
+        color: #000;
+    }
+
+@keyframes gradientAnim {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.icon-box-login {
+    font-size: 3rem;
+    color: #d4af37;
+    margin-bottom: 10px;
+}
+
+/* --- 4. ESTRUTURA DO DASHBOARD (NAVBAR FIXA + SIDEBAR) --- */
+
+/* NAVBAR NO TOPO (Fixa) */
+.navbar-premium.fixed-top {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: var(--navbar-height);
+    background: linear-gradient(90deg, #050505 0%, #1a1a1a 100%);
+    border-bottom: 2px solid #d4af37;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    z-index: 1040; /* Fica acima do sidebar */
+    padding: 0 1rem;
+}
+
+.user-info-box {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #333;
+    border-radius: 30px;
+    padding: 5px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* WRAPPER (O que sobra da tela abaixo da Navbar) */
+.wrapper {
+    display: flex;
+    width: 100%;
+    /* Altura = 100% da tela MENOS a altura da barra */
+    height: calc(100vh - var(--navbar-height));
+    margin-top: 0;
+}
+
+/* SIDEBAR (Menu Lateral) */
+#sidebar {
+    height: 100% !important; /* Altura total do wrapper */
+    min-width: 260px;
+    max-width: 260px;
+    background: #000;
+    border-right: 1px solid #333;
+    overflow-y: auto; /* Rola se o menu for muito grande */
+    transition: margin 0.3s ease-out;
+}
+
+    #sidebar .sidebar-header {
+        padding: 20px;
+        background: #000;
+        border-bottom: 1px solid #1a1a1a;
+    }
+
+    #sidebar ul.components {
+        padding: 20px 0;
+    }
+
+    #sidebar ul li a {
+        padding: 15px 20px;
+        font-size: 1rem;
+        display: block;
+        color: #bbb;
+        text-decoration: none;
+        border-left: 4px solid transparent;
+        transition: 0.3s;
+    }
+
+        #sidebar ul li a:hover {
+            color: #fff;
+            background: #1a1a1a;
+            border-left-color: rgba(212, 175, 55, 0.5);
+        }
+
+        #sidebar ul li a.active {
+            color: #d4af37;
+            background: #111;
+            border-left: 4px solid #d4af37;
+            font-weight: bold;
+        }
+
+/* Toggle: Esconder Menu */
+.wrapper.toggled #sidebar {
+    margin-left: -260px;
+}
+
+/* CONTEÚDO PRINCIPAL (Direita) */
+#content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* IMPORTANTE: A rolagem acontece aqui */
+}
+
+.main-content-area {
+    flex: 1; /* Empurra o footer para o final */
+    padding: 20px;
+}
+
+/* FOOTER */
+.footer-premium {
+    flex-shrink: 0;
+    background-color: #000;
+    border-top: 1px solid #d4af37;
+    color: #666;
+    padding: 15px 0;
+    font-size: 0.85rem;
+    margin-top: auto;
+}
+
+/* --- 5. RESPONSIVIDADE --- */
+@media (max-width: 768px) {
+    #sidebar {
+        margin-left: -260px; /* Começa escondido no celular */
+    }
+
+    .wrapper.toggled #sidebar {
+        margin-left: 0; /* Aparece ao clicar */
+    }
+}
+
+/* --- 6. ELEMENTOS EXTRAS --- */
+.card-stat {
+    background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
+    border: 1px solid #333;
+    color: white;
+    transition: transform 0.3s;
+}
+
+    .card-stat:hover {
+        transform: translateY(-5px);
+        border-color: #d4af37;
+    }
+
+/*    Logs e Relatorios style */
+
+.nav-logs .nav-link {
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+    .nav-logs .nav-link.active {
+        background-color: #d4af37 !important;
+        color: #000 !important;
+        font-weight: bold;
+    }

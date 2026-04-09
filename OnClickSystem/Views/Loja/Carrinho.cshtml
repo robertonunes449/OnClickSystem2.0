@@ -1,0 +1,76 @@
+﻿@model List<OnClickSystem.Domain.Entities.CarrinhoItem>
+@{
+    ViewData["Title"] = "Seu Carrinho";
+    decimal total = Model.Sum(x => x.Subtotal);
+}
+
+<div class="container py-5">
+    <h2 class="text-gold fw-bold mb-4"><i class="bi bi-cart3 text-gold"></i> Seu Carrinho</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-dark border-warning text-center p-5">
+            <h3>Seu carrinho está vazio.</h3>
+            <a href="/Loja/Index" class="btn btn-gold mt-3">Ir para a Loja</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card card-premium border-secondary">
+                    <div class="card-body p-0">
+                        <table class="table table-dark table-hover mb-0">
+                            <thead>
+                                <tr class="text-muted text-uppercase small">
+                                    <th class="p-4">Produto</th>
+                                    <th class="p-4 text-end">Preço</th>
+                                    <th class="p-4 text-center">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="p-4 align-middle">
+                                            <h5 class="mb-0 text-white">@item.Nome</h5>
+                                        </td>
+                                        <td class="p-4 align-middle text-end text-gold fw-bold">
+                                            R$ @item.Preco.ToString("N2")
+                                        </td>
+                                        <td class="p-4 align-middle text-center">
+                                            <a href="/Loja/RemoverDoCarrinho/@item.KitId" class="btn btn-sm btn-outline-danger" title="Remover">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="/Loja/Index" class="btn btn-outline-light"><i class="bi bi-arrow-left"></i> Continuar Comprando</a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-premium p-4 shadow-lg border-warning">
+                    <h4 class="text-white mb-4">Resumo</h4>
+                    <div class="d-flex justify-content-between mb-3 text-muted">
+                        <span>Subtotal</span>
+                        <span>R$ @total.ToString("N2")</span>
+                    </div>
+                    <hr class="border-secondary">
+                    <div class="d-flex justify-content-between mb-4 text-white fw-bold fs-4">
+                        <span>Total</span>
+                        <span class="text-gold">R$ @total.ToString("N2")</span>
+                    </div>
+                    <a href="/Loja/Checkout" class="btn btn-gold w-100 py-3 fw-bold pulse-button">
+                        FECHAR PEDIDO <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
