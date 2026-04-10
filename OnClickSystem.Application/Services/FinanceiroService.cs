@@ -9,7 +9,7 @@ using OnClickSystem.Application.ViewModels;
 
 namespace OnClickSystem.Application.Services
 {
-    public class FinanceiroService
+    public class FinanceiroService : IFinanceiroService
     {
         private readonly OnClickContext _context;
 
