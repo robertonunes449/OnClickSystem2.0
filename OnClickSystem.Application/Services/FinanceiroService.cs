@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using OnClickSystem.Domain.Entities;
 using OnClickSystem.Infrastructure.Data;
 using OnClickSystem.Application.ViewModels;
+using OnClickSystem.Application.DTOs;
 
 namespace OnClickSystem.Application.Services
 {
@@ -91,6 +92,21 @@ namespace OnClickSystem.Application.Services
                 .Where(s => s.ID_Usuario == userId)
                 .OrderByDescending(s => s.DataSolicitacao)
                 .ToListAsync();
+        }
+
+        public Task<(bool Sucesso, string Mensagem)> ProcessarSolicitacaoSaque(int userId, SolicitacaoSaqueDTO pedido)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<SaquePendenteDTO>> ObterSaquesPendentesAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AprovarSaqueAsync(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

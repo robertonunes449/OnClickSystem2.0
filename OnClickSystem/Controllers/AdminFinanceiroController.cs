@@ -1,94 +1,43 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using OnClickSystem.Domain.Entities;
-using OnClickSystem.Infrastructure.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using OnClickSystem.Application.Services;
+using System.Threading.Tasks;
 
-using System;
-using System.Linq;
-
-namespace OnClickSystem.Controllers
+namespace OnClickSystem.API.Controllers
 {
-    [Authorize(Roles = "Admin")]
-    public class AdminFinanceiroController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AdminFinanceiroController : ControllerBase
     {
-        private readonly OnClickContext _context;
+        private readonly IFinanceiroService _financeiroService;
 
-        public AdminFinanceiroController(OnClickContext context) { _context = context; }
-
-        public IActionResult Index()
+        public AdminFinanceiroController(IFinanceiroService financeiroService)
         {
-            var pedidos = _context.SolicitacoesSaque
-                .Include(s => s.Usuario)
-                .OrderBy(s => s.Status == "Pendente" ? 0 : 1)
-                .ThenByDescending(s => s.DataSolicitacao)
-                .ToList();
-
-            return View(pedidos);
+            _financeiroService = financeiroService;
         }
 
-        [HttpPost]
-        public IActionResult AprovarSaque(int id)
+        // OBJETIVO DESKTOP: O Admin no Forms clica em "Aprovar Saque", o Forms chama essa rota.
+        [HttpPut("aprovar-saque/{saqueId}")]
+        public async Task<IActionResult> AprovarSaqueAdmin(int saqueId)
         {
-            // Alterado para incluir o Utilizador para podermos colocar o nome dele no Log
-            var saque = _context.SolicitacoesSaque.Include(s => s.Usuario).FirstOrDefault(s => s.ID == id);
-
-            if (saque != null && saque.Status == "Pendente")
+            try
             {
-                saque.Status = "Pago";
-                saque.DataPagamento = DateTime.Now;
-
-                // --- NOVO: LOG DE SAQUE APROVADO ---
-                var logAprovacao = new LogSistema
-                {
-                    DataHora = DateTime.Now,
-                    UsuarioResponsavel = User.Identity.Name ?? "Admin",
-                    Acao = "Saque Aprovado", // A palavra 'Saque' envia este log para a aba Financeiro!
-                    Detalhes = $"O saque #{saque.ID} no valor de R$ {saque.Valor:N2} de {saque.Usuario?.Nome} foi pago."
-                };
-                _context.LogsSistema.Add(logAprovacao);
-                // -----------------------------------
-
-                _context.SaveChanges();
-                TempData["Sucesso"] = "Saque marcado como PAGO!";
+                // A inteligência toda (atualizar saldo, mudar status) fica AQUI na Nuvem
+                await _financeiroService.AprovarSaqueAsync(saqueId);
+                return Ok(new { mensagem = "Saque aprovado com sucesso!" });
             }
-            return RedirectToAction("Index");
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { erro = ex.Message });
+            }
         }
 
-        [HttpPost]
-        public IActionResult RejeitarSaque(int id)
+        // OBJETIVO DESKTOP: O Admin no Forms quer ver a lista de quem pediu saque.
+        [HttpGet("saques-pendentes")]
+        public async Task<IActionResult> ListarSaquesPendentes()
         {
-            var saque = _context.SolicitacoesSaque.Include(s => s.Usuario).FirstOrDefault(s => s.ID == id);
-
-            if (saque != null && saque.Status == "Pendente")
-            {
-                saque.Status = "Rejeitado";
-
-                var estorno = new Transacao
-                {
-                    ID_Usuario = saque.ID_Usuario,
-                    Valor = saque.Valor,
-                    Tipo = "Credito",
-                    Data = DateTime.Now,
-                    Descricao = $"Estorno: Saque #{saque.ID} Rejeitado"
-                };
-                _context.Transacoes.Add(estorno);
-
-                // --- NOVO: LOG DE SAQUE REJEITADO ---
-                var logRejeicao = new LogSistema
-                {
-                    DataHora = DateTime.Now,
-                    UsuarioResponsavel = User.Identity.Name ?? "Admin",
-                    Acao = "Saque Rejeitado", // Vai para a aba Financeiro
-                    Detalhes = $"O saque #{saque.ID} de {saque.Usuario.Nome} foi rejeitado e o valor de R$ {saque.Valor:N2} foi estornado."
-                };
-                _context.LogsSistema.Add(logRejeicao);
-                // ------------------------------------
-
-                _context.SaveChanges();
-                TempData["Sucesso"] = $"Saque rejeitado. R$ {saque.Valor:N2} foram devolvidos para {saque.Usuario.Nome}.";
-            }
-            return RedirectToAction("Index");
+            // Busca no banco e devolve pro Desktop mostrar no DataGridView
+            var saques = await _financeiroService.ObterSaquesPendentesAsync();
+            return Ok(saques);
         }
     }
 }

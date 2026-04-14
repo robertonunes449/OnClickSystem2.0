@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnClickSystem.Application.Services;
 using OnClickSystem.Domain.Entities;
 using System.Threading.Tasks;
