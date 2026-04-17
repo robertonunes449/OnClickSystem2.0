@@ -12,5 +12,8 @@ namespace OnClickSystem.Domain.Entities
         public string? Descricao { get; set; }
         public decimal Preco { get; set; }
         public bool Ativo { get; set; }
+
+        // Nova propriedade para armazenar o caminho ou URL da imagem
+        public string? ImagemUrl { get; set; }
     }
 }

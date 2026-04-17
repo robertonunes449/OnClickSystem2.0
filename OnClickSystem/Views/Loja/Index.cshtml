@@ -1,39 +1,100 @@
 ﻿@model IEnumerable<OnClickSystem.Domain.Entities.Kit>
 @{
     ViewData["Title"] = "Loja de Kits";
+    int delayCount = 1;
 }
 
-<div class="text-center mb-5">
-    <h2 class="fw-bold text-gold"><i class="bi bi-cart-fill text-gold"></i> Escolha seu Plano</h2>
-    <p class="text-muted">Adicione os kits ao carrinho e monte sua estratégia.</p>
+<div class="d-flex justify-content-between align-items-center mb-5 fade-in-up">
+    <div class="text-start">
+        <h2 class="fw-bold text-gold mb-1"><i class="bi bi-cart-fill text-gold"></i> Escolha seu Plano</h2>
+        <p class="text-muted mb-0">Adicione os kits ao carrinho e monte sua estratégia.</p>
+    </div>
+    
+    <div>
+        <a href="/Loja/Carrinho" class="btn btn-gold shadow rounded-pill px-4 py-2 btn-cart-tech">
+            <i class="bi bi-cart-check-fill fs-5 me-1"></i> Ver Carrinho
+        </a>
+    </div>
 </div>
 
 <div class="row justify-content-center g-4">
     @foreach (var kit in Model)
     {
-        <div class="col-md-4">
-            <div class="card card-premium h-100 shadow-lg position-relative border-warning">
-                <div class="card-body text-center p-5 d-flex flex-column">
-                    <div class="mb-3">
-                        <i class="bi bi-box-seam text-gold" style="font-size: 4rem;"></i>
-                    </div>
-                    <h3 class="fw-bold text-white mb-3">@kit.Nome</h3>
-                    <div class="display-5 fw-bold text-gold mb-3">
-                        <small class="fs-6 text-muted align-top">R$</small>@kit.Preco.ToString("N2")<small class="fs-6 text-muted"></small>
-                    </div>
-                    <p class="text-muted mb-4 flex-grow-1">@kit.Descricao</p>
+        <div class="col-md-4 fade-in-up delay-@delayCount">
+            <div class="card card-premium kit-card h-100 shadow-lg position-relative border-warning">
+                
+                <div class="img-container p-4 pb-0 text-center">
+                    @if (!string.IsNullOrEmpty(kit.ImagemUrl))
+                    {
+                        <img src="@kit.ImagemUrl" alt="@kit.Nome" class="img-fluid kit-img" style="max-height: 140px; object-fit: contain;">
+                    }
+                    else
+                    {
+                        <i class="bi bi-box-seam text-gold d-inline-block kit-img" style="font-size: 4.5rem;"></i>
+                    }
+                </div>
 
-                    <a href="/Loja/AdicionarAoCarrinho/@kit.ID" class="btn btn-outline-warning btn-lg w-100 fw-bold shadow">
-                        <i class="bi bi-cart-plus"></i> ADICIONAR AO CARRINHO
+                <div class="card-body text-center p-4 d-flex flex-column">
+                    <h3 class="fw-bold text-white mb-2">@kit.Nome</h3>
+                    
+                    <div class="display-6 fw-bold text-gold mb-3 preco-glow">
+                        <small class="fs-6 text-muted align-top">R$</small>@kit.Preco.ToString("N2")
+                    </div>
+                    
+                    <p class="text-muted mb-4 flex-grow-1 desc-limit" title="@kit.Descricao">
+                        @kit.Descricao
+                    </p>
+
+                    <a href="/Loja/AdicionarAoCarrinho/@kit.ID" class="btn btn-outline-warning btn-lg w-100 fw-bold shadow mt-auto">
+                        <i class="bi bi-cart-plus"></i> ADICIONAR
                     </a>
                 </div>
             </div>
         </div>
+
+        delayCount = delayCount < 6 ? delayCount + 1 : 6;
     }
 </div>
 
-<div class="position-fixed bottom-0 end-0 p-4" style="z-index: 100;">
-    <a href="/Loja/Carrinho" class="btn btn-gold btn-lg shadow rounded-pill px-4">
-        <i class="bi bi-cart-check-fill"></i> Ver Carrinho
-    </a>
-</div>
+<style>
+    /* Card: Suavização total */
+    .kit-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+        /* Pulo discreto e sombra elegante */
+        .kit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2) !important;
+            border-color: #ffd700 !important;
+        }
+
+            /* Brilho neon bem sutil no preço */
+            .kit-card:hover .preco-glow {
+                text-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+            }
+
+    /* Efeito de escala suave na imagem */
+    .kit-img {
+        transition: transform 0.4s ease;
+    }
+
+    .kit-card:hover .kit-img {
+        transform: scale(1.05);
+    }
+
+    /* Line Clamp: Limita a 3 linhas e coloca '...' */
+    .desc-limit {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-height: 4.5em; /* Garante que os botões fiquem alinhados */
+    }
+
+    .btn-cart-tech:hover {
+        box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+        transform: scale(1.02);
+    }
+</style>

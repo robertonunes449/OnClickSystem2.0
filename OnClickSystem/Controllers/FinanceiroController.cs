@@ -48,7 +48,7 @@ namespace OnClickSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ConfirmarSaque(SolicitacaoSaque pedido)
+        public async Task<IActionResult> ConfirmarSaque(SolicitacaoSaqueDTO pedido)
         {
             if (!ModelState.IsValid)
             {
@@ -57,9 +57,15 @@ namespace OnClickSystem.Controllers
             }
 
             var userId = GetIdLogado();
-            
-            // Toda a lógica complexa foi substituída por esta linha:
-            var resultado = await _financeiroService.ProcessarSolicitacaoSaque(userId, pedido);
+
+            var dto = new SolicitacaoSaqueDTO
+            {
+                // Preenche com os dados do pedido
+                Valor = pedido.Valor,
+                // adiciona outros campos se tiver
+            };
+
+            var resultado = await _financeiroService.ProcessarSolicitacaoSaque(userId, dto);
 
             if (resultado.Sucesso)
             {
@@ -72,7 +78,6 @@ namespace OnClickSystem.Controllers
                 return RedirectToAction("SolicitarSaque");
             }
         }
-
         private int GetIdLogado()
         {
             // Pega o ID de forma segura sem dar erro se estiver nulo

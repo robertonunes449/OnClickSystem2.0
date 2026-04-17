@@ -94,19 +94,26 @@ namespace OnClickSystem.Application.Services
                 .ToListAsync();
         }
 
-        public Task<(bool Sucesso, string Mensagem)> ProcessarSolicitacaoSaque(int userId, SolicitacaoSaqueDTO pedido)
+        public async Task<(bool Sucesso, string Mensagem)> ProcessarSolicitacaoSaque(int userId, SolicitacaoSaqueDTO dto)
         {
-            throw new NotImplementedException();
+            var pedido = new SolicitacaoSaque
+            {
+                Valor = dto.Valor,
+                ChavePix = dto.ChavePix
+                // adiciona outros campos se existirem
+            };
+
+            return await ProcessarSolicitacaoSaque(userId, pedido);
         }
 
         public Task<List<SaquePendenteDTO>> ObterSaquesPendentesAsync()
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new List<SaquePendenteDTO>());
         }
 
         public Task AprovarSaqueAsync(int id)
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
     }
 }

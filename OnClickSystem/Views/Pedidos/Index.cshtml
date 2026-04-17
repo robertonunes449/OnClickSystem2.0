@@ -3,62 +3,54 @@
     ViewData["Title"] = "Meus Pedidos";
 }
 
-<div class="row align-items-center mb-4">
-    <div class="col-md-6">
-        <h2 class="fw-bold text-gold mb-0"><i class="bi bi-receipt text-gold"></i> Histórico de Compras</h2>
+<div class="fade-in-up">
+    <div class="mb-4">
+        <h2 class="fw-bold text-gold"><i class="bi bi-bag-check me-2"></i> Histórico de Compras</h2>
+        <p class="text-muted">Acompanhe o status de todos os seus kits adquiridos.</p>
     </div>
-    <div class="col-md-6">
-        <div class="input-group">
-            <span class="input-group-text bg-dark border-secondary text-gold"><i class="bi bi-search"></i></span>
-            <input type="text" id="buscaPedidos" class="form-control bg-dark text-white border-secondary" placeholder="Filtrar pedidos...">
+
+    <div class="card card-premium p-0 delay-1">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead class="text-muted small text-uppercase bg-black">
+                    <tr>
+                        <th class="ps-4">Código</th>
+                        <th>Data</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Valor</th>
+                        <th class="text-end pe-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold text-gold">#@p.ID.ToString().PadLeft(5, '0')</td>
+                            <td class="text-white-50">@p.DataPedido.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="text-center">
+                                @if (p.Status == "Aprovado")
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3 py-2">
+                                        <i class="bi bi-check2-circle me-1"></i> PAGO
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning rounded-pill px-3 py-2">
+                                        <i class="bi bi-hourglass-split me-1"></i> AGUARDANDO
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-center fw-bold text-white">R$ @p.Valor.ToString("N2")</td>
+                            <td class="text-end pe-4">
+                                <a href="/Pedidos/Detalhes/@p.ID" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                                    Ver Detalhes
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
-
-<div class="card card-premium p-0 overflow-hidden shadow-lg">
-    <div class="table-responsive">
-        <table class="table table-dark table-hover mb-0 align-middle" id="tabelaPedidos">
-            <thead>
-                <tr class="text-gold border-bottom border-warning text-center">
-                    <th class="ps-4 text-start">Produto / Kit</th>
-                    <th>Data</th>
-                    <th>Valor</th>
-                    <th>Status</th>
-                    <th class="text-end pe-4">Recibo</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr class="text-center">
-                        <td class="ps-4 text-start fw-bold text-white">
-                            <i class="bi bi-box-seam text-secondary me-2"></i> @item.Kit.Nome
-                        </td>
-                        <td class="text-muted">@item.DataPedido.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td class="text-success fw-bold">R$ @item.Valor.ToString("N2")</td>
-                        <td>
-                            <span class="badge bg-success bg-opacity-75"><i class="bi bi-check2-all"></i> PAGO</span>
-                        </td>
-                        <td class="text-end pe-4">
-                            <a href="/Pedidos/Detalhes/@item.ID" class="btn btn-sm btn-gold text-dark fw-bold">Ver Recibo</a>
-                        </td>
-                    </tr>
-                }
-                @if (!Model.Any())
-                {
-                    <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">Você ainda não fez nenhuma compra.</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            ativarPesquisa("buscaPedidos", "tabelaPedidos");
-        });
-    </script>
-}

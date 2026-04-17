@@ -17,7 +17,7 @@
 </head>
 <body class="body-login">
 
-    <div class="card-premium card-login p-4">
+    <div class="card-premium card-login p-4 fade-in-up">
         <div class="text-center mb-4">
             <div class="icon-box-login">
                 <i class="bi bi-gem"></i>
@@ -48,7 +48,10 @@
                 <label class="form-label text-secondary small">SENHA</label>
                 <div class="input-group">
                     <span class="input-group-text bg-dark border-secondary text-gold"><i class="bi bi-lock-fill"></i></span>
-                    <input type="password" name="senha" class="form-control form-control-premium" placeholder="••••••" required />
+                    <input type="password" id="senhaInput" name="senha" class="form-control form-control-premium" placeholder="••••••" required />
+                    <button class="btn btn-outline-secondary bg-dark border-secondary text-gold" type="button" id="btnToggleSenha">
+                        <i class="bi bi-eye" id="iconeSenha"></i>
+                    </button>
                 </div>
             </div>
 
@@ -68,5 +71,26 @@
             <a href="#" class="text-muted small text-decoration-none">Esqueci minha senha</a>
         </div>
     </div>
+
+
+    <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const btnToggle = document.getElementById('btnToggleSenha');
+                const senhaInput = document.getElementById('senhaInput');
+                const iconeSenha = document.getElementById('iconeSenha');
+
+                btnToggle.addEventListener('click', function () {
+                    if (senhaInput.type === 'password') {
+                        senhaInput.type = 'text';
+                        iconeSenha.classList.replace('bi-eye', 'bi-eye-slash');
+                    } else {
+                        senhaInput.type = 'password';
+                        iconeSenha.classList.replace('bi-eye-slash', 'bi-eye');
+                    }
+                });
+            });
+    </script>
+
+
 </body>
 </html>

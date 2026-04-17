@@ -1,92 +1,112 @@
-﻿@model List<OnClickSystem.Domain.Entities.CarrinhoItem>
+﻿@model IEnumerable<OnClickSystem.Domain.Entities.CarrinhoItem>
 @{
-    ViewData["Title"] = "Checkout";
-    decimal total = Model.Sum(x => x.Subtotal);
+    ViewData["Title"] = "Finalizar Pedido";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card card-premium p-4 shadow-lg">
+<div class="container py-5 fade-in-up">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-gold"><i class="bi bi-shield-lock-fill me-2"></i> Checkout Seguro</h2>
+        <p class="text-muted">Revise seus itens e escolha a forma de ativação.</p>
+    </div>
 
-            <div class="d-flex flex-column mb-4 pb-4 border-bottom border-secondary">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="bg-dark rounded p-3 me-3 border border-warning">
-                        <i class="bi bi-cart-check text-gold fs-1"></i>
-                    </div>
-                    <div>
-                        <small class="text-muted text-uppercase">Resumo do Pedido</small>
-                        <h3 class="text-white fw-bold mb-0">Checkout Final</h3>
-                    </div>
+    <div class="row g-4">
+        <div class="col-lg-5 delay-1">
+            <div class="card card-premium h-100 shadow">
+                <div class="card-header bg-dark border-secondary py-3">
+                    <h5 class="mb-0 text-white">Resumo da Estratégia</h5>
                 </div>
-
-                <div class="bg-dark rounded p-3 mb-3">
+                <div class="card-body">
                     @foreach (var item in Model)
                     {
-                        <div class="d-flex justify-content-between text-muted small border-bottom border-secondary pb-2 mb-2">
-                            <span>@item.Nome</span>
-                            <span>R$ @item.Preco.ToString("N2")</span>
+                        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-secondary border-opacity-25 pb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-box-small me-3">
+                                    <i class="bi bi-box-seam text-gold"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-white mb-0">@item.Nome</h6>
+                                    <small class="text-muted">Ativação Imediata</small>
+                                </div>
+                            </div>
+                            <span class="fw-bold text-white">R$ @item.Preco.ToString("N2")</span>
                         </div>
                     }
-                    <div class="d-flex justify-content-between text-success fw-bold fs-4 mt-2">
-                        <span>TOTAL A PAGAR:</span>
-                        <span>R$ @total.ToString("N2")</span>
+
+                    <div class="mt-4 p-3 bg-dark bg-opacity-50 rounded-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Subtotal</span>
+                            <span class="text-white">R$ @Model.Sum(x => x.Preco).ToString("N2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-bold text-white fs-5">Total a Pagar</span>
+                            <span class="fw-bold text-gold fs-4">R$ @Model.Sum(x => x.Preco).ToString("N2")</span>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <h5 class="text-white mb-3"><i class="bi bi-wallet2 text-gold"></i> Escolha como pagar:</h5>
+        <div class="col-lg-7 delay-2">
+            <div class="card card-premium h-100 shadow border-gold">
+                <div class="card-body p-4 p-md-5">
+                    <h4 class="text-white mb-4">Confirmar Ativação</h4>
+                    
+                    <form asp-action="ProcessarCheckout" method="post">
+                        <div class="alert alert-warning bg-dark border-warning text-warning mb-4 small">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Ao confirmar, o sistema gerará o registro do pedido e você poderá visualizar os detalhes na aba "Meus Pedidos".
+                        </div>
 
-            <div class="row g-2 mb-4">
-                <div class="col-6">
-                    <input type="radio" class="btn-check" name="metodoPagamento" id="btnPix" autocomplete="off" checked onchange="mudarPagamento('pix')">
-                    <label class="btn btn-outline-light w-100 py-3 border-secondary" for="btnPix">PIX</label>
-                </div>
-                <div class="col-6">
-                    <input type="radio" class="btn-check" name="metodoPagamento" id="btnCard" autocomplete="off" onchange="mudarPagamento('card')">
-                    <label class="btn btn-outline-light w-100 py-3 border-secondary" for="btnCard">Cartão</label>
+                        <div class="mb-4">
+                            <label class="form-label text-muted small">MÉTODO DE PAGAMENTO</label>
+                            <div class="d-flex gap-3">
+                                <div class="payment-option selected w-100">
+                                    <i class="bi bi-qr-code-scan fs-4 mb-2"></i>
+                                    <span>PIX / Saldo</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-3 mt-5">
+                            <button type="submit" class="btn btn-gold btn-lg py-3 fw-bold shadow">
+                                FINALIZAR E ATIVAR AGORA <i class="bi bi-lightning-charge-fill ms-2"></i>
+                            </button>
+                            <a href="/Loja/Carrinho" class="btn btn-outline-secondary border-0 small">
+                                Voltar ao carrinho
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <div id="areaPix" class="bg-dark p-3 rounded border border-secondary mb-4 text-center">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=OnClickSystem-Total-@total" class="img-fluid border border-white p-1 bg-white rounded mb-3" />
-                <br>
-                <p class="text-white">Pagamento de <strong>R$ @total.ToString("N2")</strong></p>
-            </div>
-
-            <div id="areaCard" style="display:none;" class="bg-dark p-3 rounded border border-secondary mb-4">
-                <p class="text-white">Dados do Cartão (Simulação)</p>
-                <input type="text" class="form-control mb-2" placeholder="Número do Cartão">
-            </div>
-
-            <form action="/Loja/ConfirmarCompra" method="post" id="formPagamento">
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-gold py-3 fs-5 shadow fw-bold pulse-button">
-                        <i class="bi bi-check-circle-fill me-2"></i> PAGAR R$ @total.ToString("N2")
-                    </button>
-                    <a href="/Loja/Carrinho" class="btn btn-link text-muted text-decoration-none">Voltar ao Carrinho</a>
-                </div>
-            </form>
-
         </div>
     </div>
 </div>
 
-<script>
-    function mudarPagamento(tipo) {
-        if (tipo === 'pix') {
-            document.getElementById('areaPix').style.display = 'block';
-            document.getElementById('areaCard').style.display = 'none';
-        } else {
-            document.getElementById('areaPix').style.display = 'none';
-            document.getElementById('areaCard').style.display = 'block';
-        }
+<style>
+    .icon-box-small {
+        width: 40px;
+        height: 40px;
+        background: rgba(212, 175, 55, 0.1);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    document.getElementById('formPagamento').addEventListener('submit', function() {
-        document.getElementById('loadingOverlay').style.display = 'flex';
-    });
-</script>
 
-<div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center; flex-direction:column;">
-    <div class="spinner-border text-gold" style="width: 4rem; height: 4rem;" role="status"></div>
-    <h4 class="text-white mt-3 fw-bold animate-pulse">Processando Pagamento...</h4>
-</div>
+    .payment-option {
+        border: 2px solid #d4af37;
+        background: rgba(212, 175, 55, 0.05);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+    }
+
+        .payment-option i {
+            color: #d4af37;
+        }
+</style>

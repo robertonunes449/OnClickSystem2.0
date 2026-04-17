@@ -1,8 +1,10 @@
-﻿namespace OnClickSystem.Application.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+public class SolicitacaoSaqueDTO
 {
-    public class SolicitacaoSaqueDTO
-    {
-        public decimal Valor { get; set; }
-       
-    }
+    [Required]
+    public decimal Valor { get; set; }
+
+    [Required]
+    public string ChavePix { get; set; }
 }

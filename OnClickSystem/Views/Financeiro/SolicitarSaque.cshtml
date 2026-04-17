@@ -1,44 +1,49 @@
-﻿@model OnClickSystem.Domain.Entities.SolicitacaoSaque
+﻿@model SolicitacaoSaqueDTO
 @{
     ViewData["Title"] = "Solicitar Saque";
 }
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card bg-dark border-warning shadow-lg">
-                <div class="card-header bg-gold text-dark fw-bold text-center">
-                    <i class="bi bi-bank me-2"></i> SOLICITAR SAQUE
-                </div>
-                <div class="card-body text-white">
-                    @if (TempData["Erro"] != null)
-                    {
-                        <div class="alert alert-danger text-center">@TempData["Erro"]</div>
-                    }
+<div class="container d-flex justify-content-center align-items-center fade-in-up" style="min-height: 70vh;">
+    <div class="card card-premium p-4 p-md-5 shadow-lg border-gold" style="max-width: 480px; width: 100%;">
+        
+        <div class="text-center mb-4">
+            <div class="icon-circle bg-gold bg-opacity-10 d-inline-flex mb-3">
+                <i class="bi bi-cash-stack text-gold fs-2"></i>
+            </div>
+            <h2 class="fw-bold text-white">Novo Saque</h2>
+            <p class="text-muted small">O valor será transferido para sua chave Pix cadastrada.</p>
+        </div>
 
-                    <form asp-action="ConfirmarSaque" method="post">
-                        <div class="mb-3">
-                            <label class="form-label text-gold">Valor (R$)</label>
-                            <input asp-for="Valor" type="number" step="0.01" class="form-control bg-black text-white border-secondary" required />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label text-gold">Chave PIX</label>
-                            <input asp-for="ChavePix" type="text" class="form-control bg-black text-white border-secondary" required />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label text-gold">Tipo de Chave</label>
-                            <select asp-for="TipoChave" class="form-select bg-black text-white border-secondary">
-                                <option>CPF</option>
-                                <option>Email</option>
-                                <option>Telefone</option>
-                                <option>Aleatória</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-warning w-100 fw-bold">CONFIRMAR</button>
-                        <a asp-action="Index" class="btn btn-outline-secondary w-100 mt-2">Cancelar</a>
-                    </form>
+        <div class="bg-dark bg-opacity-50 rounded-4 p-3 mb-4 text-center border border-secondary border-opacity-25">
+            <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">Saldo Disponível</small>
+            <span class="fs-3 fw-bold text-gold">R$ @(ViewBag.Saldo?.ToString("N2") ?? "0,00")</span>
+        </div>
+
+        <form asp-action="SolicitarSaque" method="post">
+            <div class="mb-4">
+                <label class="form-label text-muted small ps-1">VALOR DO SAQUE</label>
+                <div class="input-group input-group-lg border-bottom border-secondary">
+                    <span class="input-group-text bg-transparent border-0 text-gold fs-4">R$</span>
+                    <input type="number" asp-for="Valor" step="0.01" class="form-control bg-transparent border-0 text-white fs-2 fw-bold px-0 focus-none" placeholder="0,00" required>
                 </div>
             </div>
-        </div>
+
+            <div class="mb-4">
+                <label class="form-label text-muted small ps-1">CHAVE PIX</label>
+                <input type="text" asp-for="ChavePix" class="form-control form-control-premium bg-dark border-secondary py-3" placeholder="Confirme sua chave Pix" required>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-gold btn-lg py-3 fw-bold shadow">
+                    CONFIRMAR <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+                <a href="/Financeiro/Index" class="btn btn-link text-muted text-decoration-none mt-2 small">Cancelar</a>
+            </div>
+        </form>
     </div>
 </div>
+
+<style>
+    .focus-none:focus { background-color: transparent !important; box-shadow: none !important; color: white !important; }
+    .icon-circle { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+</style>

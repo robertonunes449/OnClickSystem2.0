@@ -251,3 +251,42 @@ h4, .text-gold {
         color: #000 !important;
         font-weight: bold;
     }
+
+/* Animação de Entrada para Cards Premium */
+.fade-in-up {
+    animation: fadeInUp 1.2s ease-out forwards;
+    opacity: 0; /* Começa invisível */
+    transform: translateY(30px); /* Começa 30px mais para baixo */
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1; /* Fica 100% visível */
+        transform: translateY(0); /* Volta para a posição original */
+    }
+}
+
+/* Classes de Delay para a animação em cascata */
+.delay-1 {
+    animation-delay: 0.1s;
+}
+
+.delay-2 {
+    animation-delay: 0.3s;
+}
+
+.delay-3 {
+    animation-delay: 0.3s;
+}
+
+.delay-4 {
+    animation-delay: 0.3s;
+}
+
+.delay-5 {
+    animation-delay: 0.3s;
+}
+
+.delay-6 {
+    animation-delay: 0.3s;
+}
