@@ -1,0 +1,72 @@
+﻿@model IEnumerable<OnClickSystem.Domain.Entities.SolicitacaoSaque>
+@{
+    ViewData["Title"] = "Gestão de Saques";
+}
+
+<div class="fade-in-up">
+    <h2 class="fw-bold text-gold mb-4"><i class="bi bi-bank me-2"></i> Aprovação de Saques</h2>
+
+    <div class="card card-premium p-0 overflow-hidden shadow-lg border-secondary">
+        <table class="table table-dark table-hover mb-0 align-middle">
+            <thead class="bg-black text-muted small text-uppercase">
+                <tr>
+                    <th class="ps-4 py-3">Usuário</th>
+                    <th>Valor</th>
+                    <th>Chave PIX</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-end pe-4">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold text-white">@s.Usuario?.Nome</div>
+                            <small class="text-muted">@s.DataSolicitacao.ToString("dd/MM/yyyy HH:mm")</small>
+                        </td>
+                        <td class="text-gold fw-bold">R$ @s.Valor.ToString("N2")</td>
+                        <td>
+                            <div class="small">
+                                <span class="text-muted">@s.TipoChave:</span>
+                                <span class="text-white">@s.ChavePix</span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            @if (s.Status == "Pendente")
+                            {
+                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-3">PENDENTE</span>
+                            }
+                            else if (s.Status == "Pago")
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success px-3">PAGO</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3">@s.Status</span>
+                            }
+                        </td>
+                        <td class="text-end pe-4">
+                            @if (s.Status == "Pendente")
+                            {
+                                <form asp-action="ProcessarSaque" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@s.ID" />
+                                    <button type="submit" name="acao" value="Aprovar" class="btn btn-success btn-sm rounded-pill px-3 fw-bold">
+                                        <i class="bi bi-check-lg"></i> Aprovar
+                                    </button>
+                                    <button type="submit" name="acao" value="Negar" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                        Negar
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <small class="text-muted">Processado em @s.DataPagamento?.ToString("dd/MM/yy")</small>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

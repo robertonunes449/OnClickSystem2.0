@@ -4,20 +4,22 @@
 }
 
 <div class="fade-in-up">
-    <div class="mb-4">
-        <h2 class="fw-bold text-gold"><i class="bi bi-bag-check me-2"></i> Histórico de Compras</h2>
-        <p class="text-muted">Acompanhe o status de todos os seus kits adquiridos.</p>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-gold mb-1"><i class="bi bi-bag-check-fill me-2"></i> Meus Pedidos</h2>
+            <p class="text-muted">Acompanhe o histórico e status de suas ativações.</p>
+        </div>
     </div>
 
-    <div class="card card-premium p-0 delay-1">
+    <div class="card card-premium p-0 delay-1 shadow-lg">
         <div class="table-responsive">
             <table class="table table-dark table-hover mb-0 align-middle">
-                <thead class="text-muted small text-uppercase bg-black">
+                <thead class="text-muted small text-uppercase bg-black bg-opacity-50">
                     <tr>
-                        <th class="ps-4">Código</th>
+                        <th class="ps-4 py-3">ID Pedido</th>
                         <th>Data</th>
                         <th class="text-center">Status</th>
-                        <th class="text-center">Valor</th>
+                        <th class="text-center">Total</th>
                         <th class="text-end pe-4">Ações</th>
                     </tr>
                 </thead>
@@ -25,25 +27,27 @@
                     @foreach (var p in Model)
                     {
                         <tr>
-                            <td class="ps-4 fw-bold text-gold">#@p.ID.ToString().PadLeft(5, '0')</td>
+                            <td class="ps-4 fw-bold">
+                                <span class="text-gold">#</span>@p.ID.ToString().PadLeft(5, '0')
+                            </td>
                             <td class="text-white-50">@p.DataPedido.ToString("dd/MM/yyyy HH:mm")</td>
                             <td class="text-center">
                                 @if (p.Status == "Aprovado")
                                 {
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3 py-2">
-                                        <i class="bi bi-check2-circle me-1"></i> PAGO
+                                    <span class="badge-status success">
+                                        <i class="bi bi-check-circle-fill me-1"></i> APROVADO
                                     </span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning rounded-pill px-3 py-2">
-                                        <i class="bi bi-hourglass-split me-1"></i> AGUARDANDO
+                                    <span class="badge-status warning">
+                                        <i class="bi bi-clock-history me-1"></i> PENDENTE
                                     </span>
                                 }
                             </td>
                             <td class="text-center fw-bold text-white">R$ @p.Valor.ToString("N2")</td>
                             <td class="text-end pe-4">
-                                <a href="/Pedidos/Detalhes/@p.ID" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                                <a href="/Pedidos/Detalhes/@p.ID" class="btn btn-outline-gold btn-sm rounded-pill px-3">
                                     Ver Detalhes
                                 </a>
                             </td>
@@ -54,3 +58,34 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Estilo para as Badges Modernas */
+    .badge-status {
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid transparent;
+    }
+    .badge-status.success {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        border-color: rgba(40, 167, 69, 0.2);
+    }
+    .badge-status.warning {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+        border-color: rgba(255, 193, 7, 0.2);
+    }
+    .btn-outline-gold {
+        color: #d4af37;
+        border-color: #d4af37;
+    }
+    .btn-outline-gold:hover {
+        background-color: #d4af37;
+        color: #000;
+    }
+</style>

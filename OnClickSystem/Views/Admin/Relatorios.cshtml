@@ -1,0 +1,145 @@
+﻿@model IEnumerable<OnClickSystem.Domain.Entities.LogSistema>
+@{
+    ViewData["Title"] = "Auditoria de Sistema";
+    var acoes = ViewBag.AcoesDisponiveis as List<string> ?? new List<string>();
+}
+
+<div class="fade-in-up">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-gold mb-1">
+                <i class="bi bi-shield-shaded me-2"></i> Relatórios e Logs
+            </h2>
+            <p class="text-muted mb-0">Monitoramento em tempo real de todas as ações críticas do sistema.</p>
+        </div>
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-printer me-1"></i> Exportar PDF
+        </button>
+    </div>
+
+    <div class="card card-premium p-4 mb-4 border-secondary shadow">
+        <form method="get" asp-action="Relatorios" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="text-muted small fw-bold mb-2">BUSCAR TERMO</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="busca" class="form-control bg-dark border-secondary text-white" 
+                           placeholder="Ex: Nome, ID, Detalhe..." value="@Context.Request.Query["busca"]">
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <label class="text-muted small fw-bold mb-2">CATEGORIA</label>
+                <select name="acaoFiltro" class="form-select bg-dark border-secondary text-white">
+                    <option value="">Todas</option>
+                    @foreach (var acao in acoes)
+                    {
+                        <option value="@acao" selected="@(Context.Request.Query["acaoFiltro"] == acao)">@acao</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="text-muted small fw-bold mb-2">PERÍODO</label>
+                <div class="input-group">
+                    <input type="date" name="inicio" class="form-control bg-dark border-secondary text-white" value="@Context.Request.Query["inicio"]">
+                    <span class="input-group-text bg-dark border-secondary text-muted">até</span>
+                    <input type="date" name="fim" class="form-control bg-dark border-secondary text-white" value="@Context.Request.Query["fim"]">
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="d-grid gap-2 d-md-flex">
+                    <button type="submit" class="btn btn-gold fw-bold flex-grow-1">
+                        <i class="bi bi-filter"></i> FILTRAR
+                    </button>
+                    <a href="/Admin/Relatorios" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card card-premium p-0 overflow-hidden shadow-lg border-secondary">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead class="bg-black text-muted small text-uppercase">
+                    <tr>
+                        <th class="ps-4 py-3">Data / Hora</th>
+                        <th>Responsável</th>
+                        <th>Evento</th>
+                        <th class="pe-4">Detalhes da Atividade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 small text-white-50">
+                                    <i class="bi bi-clock me-1"></i> @log.DataHora.ToString("dd/MM/yyyy HH:mm:ss")
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-white">@log.UsuarioResponsavel</span>
+                                </td>
+                                <td>
+                                    @* Cores dinâmicas baseadas na categoria *@
+                                    <span class="badge rounded-pill px-3 py-2 @GetBadgeClass(log.Acao)">
+                                        @log.Acao.ToUpper()
+                                    </span>
+                                </td>
+                                <td class="pe-4 small">
+                                    <div class="text-muted text-truncate" style="max-width: 400px;" title="@log.Detalhes">
+                                        @log.Detalhes
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                <i class="bi bi-info-circle fs-2 d-block mb-2"></i>
+                                Nenhum log encontrado para os filtros selecionados.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@functions {
+    // Função auxiliar para definir as cores das badges de Log
+    public string GetBadgeClass(string acao)
+    {
+        return acao.ToLower() switch
+        {
+            "segurança" => "bg-danger bg-opacity-10 text-danger border border-danger",
+            "financeiro" => "bg-success bg-opacity-10 text-success border border-success",
+            "rede" => "bg-info bg-opacity-10 text-info border border-info",
+            "exclusão de conta" => "bg-danger text-white",
+            _ => "bg-secondary bg-opacity-10 text-muted border border-secondary"
+        };
+    }
+}
+
+<style>
+    /* Ajuste para que a tabela de logs seja legível e moderna */
+    .table-hover tbody tr:hover {
+        background-color: rgba(212, 175, 55, 0.05) !important;
+        transition: background-color 0.2s ease;
+    }
+
+    /* Estilo para impressão do relatório */
+    @@media print {
+        .btn, form, .text-gold { display: none !important; }
+        .card-premium { background: white !important; color: black !important; border: 1px solid #ddd !important; }
+        .table { color: black !important; }
+        .badge { border: 1px solid black !important; color: black !important; background: transparent !important; }
+    }
+</style>

@@ -78,5 +78,45 @@ namespace OnClickSystem.Application.Services
 
             await _context.SaveChangesAsync();
         }
+
+        // --- NOVO MÉTODO: BÔNUS DE INDICAÇÃO NO CADASTRO ---
+        public async Task GerarComissaoCadastro(int idPatrocinador, int idNovoUsuario)
+        {
+            var patrocinador = await _context.Usuarios.FindAsync(idPatrocinador);
+            var novoUsuario = await _context.Usuarios.FindAsync(idNovoUsuario);
+
+            // Validação de segurança
+            if (patrocinador == null || novoUsuario == null) return;
+
+            // Definimos um valor fixo para o "Bônus de Boas-vindas/Indicação"
+            // Você pode ajustar este valor conforme a regra do seu projeto
+            decimal valorBonus = 10.00m;
+
+            // 1. Criar a Transação de Crédito para o Patrocinador
+            var credito = new Transacao
+            {
+                ID_Usuario = patrocinador.ID,
+                Valor = valorBonus,
+                Tipo = "Credito",
+                Data = DateTime.Now,
+                Descricao = $"Bônus de Indicação - Novo Afiliado: {novoUsuario.Nome}"
+            };
+            _context.Transacoes.Add(credito);
+
+            // 2. Opcional: Registrar no histórico de comissões
+            var historico = new Comissao
+            {
+                ID_Beneficiario = patrocinador.ID,
+                Valor = valorBonus,
+                Nivel = 1, // Indicação direta
+                DataGeracao = DateTime.Now
+                // Como não houve venda, o ID_Pedido fica nulo (assumindo que seu banco permite null aqui)
+            };
+            _context.Comissoes.Add(historico);
+
+            await _context.SaveChangesAsync();
+        }
+
+
     }
 }

@@ -1,94 +1,124 @@
-﻿@{
-    ViewData["Title"] = "Minha Rede";
+﻿@model IEnumerable<OnClickSystem.Domain.Entities.Usuario>
+@{
+    ViewData["Title"] = "Expansão de Rede";
+    var indiretos = ViewBag.ListaIndiretos as List<OnClickSystem.Domain.Entities.Usuario> ?? new List<OnClickSystem.Domain.Entities.Usuario>();
+    string nomeUsuario = User.Identity.Name;
+    string baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
+    string linkIndicacao = $"{baseUrl}/Cadastro/Novo?patrocinador={nomeUsuario}";
+    
+    // Verifica se o usuário logado já tem patrocinador (usando um truque simples de busca no contexto ou ViewBag)
+    bool temPatrocinador = Model.Any() ? true : false; // Lógica simplificada para a View
 }
 
 <div class="fade-in-up">
     <div class="mb-4">
-        <h2 class="fw-bold text-gold"><i class="bi bi-diagram-3 me-2"></i> Expansão de Rede</h2>
-        <p class="text-muted">Visualize e gerencie seus afiliados diretos e indiretos.</p>
+        <h2 class="fw-bold text-gold"><i class="bi bi-diagram-3-fill me-2"></i> Minha Rede de Expansão</h2>
+        <p class="text-muted">Gerencie seus afiliados e acompanhe o crescimento da sua organização.</p>
+    </div>
+
+    @if (ViewBag.TotalDiretos == 0 && !temPatrocinador)
+    {
+        <div class="card card-premium border-warning mb-4 delay-1">
+            <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <h5 class="text-white mb-1"><i class="bi bi-person-plus text-gold me-2"></i>Vincular Patrocinador</h5>
+                    <p class="text-muted small mb-0">Você ainda não faz parte de uma rede. Insira o código do seu indicador.</p>
+                </div>
+                <form asp-action="VincularPatrocinador" method="post" class="d-flex gap-2">
+                    <input type="text" name="codigoPatrocinador" class="form-control bg-dark border-secondary text-white" placeholder="Nome ou E-mail">
+                    <button type="submit" class="btn btn-gold fw-bold px-4 shadow">VINCULAR</button>
+                </form>
+            </div>
+        </div>
+    }
+
+    <div class="card card-premium p-4 mb-4 delay-2 border-gold bg-gradient-dark">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h5 class="text-gold fw-bold mb-3"><i class="bi bi-megaphone-fill me-2"></i> Seu Link de Indicação</h5>
+                <div class="input-group mb-2">
+                    <input type="text" id="linkRef" class="form-control bg-black border-secondary text-gold fw-bold" value="@linkIndicacao" readonly>
+                    <button class="btn btn-gold px-3" onclick="copiarLink()">
+                        <i class="bi bi-clipboard me-1"></i> COPIAR
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="https://api.whatsapp.com/send?text=Junte-se ao meu time na OnClick! @linkIndicacao" target="_blank" class="btn btn-outline-success border-2 fw-bold px-3">
+                    <i class="bi bi-whatsapp me-1"></i> COMPARTILHAR
+                </a>
+            </div>
+        </div>
     </div>
 
     <div class="row g-4 mb-4">
-        <div class="col-md-4 delay-1">
-            <div class="card card-stat p-3 border-start border-info border-4">
-                <small class="text-muted text-uppercase fw-bold">Diretos</small>
-                <h2 class="text-white mb-0">@(ViewBag.QuantidadeDiretos ?? 0)</h2>
+        <div class="col-md-6 delay-3">
+            <div class="card card-premium p-4 text-center border-start border-4 border-info">
+                <small class="text-muted text-uppercase fw-bold">Afiliados Diretos</small>
+                <h1 class="display-3 fw-bold text-white mb-0">@ViewBag.TotalDiretos</h1>
             </div>
         </div>
-        <div class="col-md-4 delay-2">
-            <div class="card card-stat p-3 border-start border-warning border-4">
-                <small class="text-muted text-uppercase fw-bold">Rede Total</small>
-                <h2 class="text-white mb-0">@(ViewBag.QuantidadeRedeTotal ?? 0)</h2>
-            </div>
-        </div>
-        <div class="col-md-4 delay-3">
-            <div class="card card-stat p-3 border-start border-success border-4">
-                <small class="text-muted text-uppercase fw-bold">Ativos</small>
-                <h2 class="text-success mb-0">@(ViewBag.QuantidadeAtivos ?? 0)</h2>
+        <div class="col-md-6 delay-4">
+            <div class="card card-premium p-4 text-center border-start border-4 border-warning">
+                <small class="text-muted text-uppercase fw-bold">Rede Indireta</small>
+                <h1 class="display-3 fw-bold text-gold mb-0">@ViewBag.TotalIndiretos</h1>
             </div>
         </div>
     </div>
 
-    <div class="card card-premium p-0 delay-4">
-        <div class="card-header bg-dark border-secondary py-3">
-            <h5 class="mb-0 text-white">Meus Indicados</h5>
+    <div class="card card-premium p-0 delay-5">
+        <div class="card-header bg-dark border-secondary p-0">
+            <ul class="nav nav-tabs border-0" role="tablist">
+                <li class="nav-item"><a class="nav-link active border-0 py-3 px-4 fw-bold text-gold" data-bs-toggle="tab" href="#diretos">DIRETOS (NÍVEL 1)</a></li>
+                <li class="nav-item"><a class="nav-link border-0 py-3 px-4 fw-bold text-white" data-bs-toggle="tab" href="#indiretos">INDIRETOS</a></li>
+            </ul>
         </div>
-        <div class="table-responsive">
-            <table class="table table-dark table-hover mb-0 align-middle">
-                <thead class="text-muted small">
-                    <tr>
-                        <th class="ps-4">AFILIADO</th>
-                        <th class="text-center">NÍVEL</th>
-                        <th class="text-center">STATUS</th>
-                        <th class="text-end pe-4">DATA ADESÃO</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (ViewBag.MinhaRede != null)
-                    {
-                        foreach (var item in ViewBag.MinhaRede)
-                        {
-                            <tr>
-                                <td class="ps-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-circle me-3">@item.Nome.Substring(0, 1)</div>
-                                        <div>
-                                            <div class="text-white fw-bold">@item.Nome</div>
-                                            <div class="small text-muted">@item.Email</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-center"><span class="badge bg-dark border border-secondary text-secondary">Lvl @item.Nivel</span></td>
-                                <td class="text-center">
-                                    @if (item.Ativo)
-                                    {
-                                        <span class="text-success"><i class="bi bi-patch-check-fill me-1"></i> Ativo</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-danger"><i class="bi bi-clock-history me-1"></i> Pendente</span>
-                                    }
-                                </td>
-                                <td class="text-end pe-4 text-muted">@item.DataCadastro.ToString("dd/MM/yyyy")</td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
+        <div class="tab-content p-4">
+            <div id="diretos" class="tab-pane active">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead class="small text-muted text-uppercase">
+                            <tr><th>Nome</th><th class="text-center">Status</th><th class="text-end">Data</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var u in Model)
+                            {
+                                <tr>
+                                    <td><div class="fw-bold">@u.Nome</div><small class="text-muted">@u.Email</small></td>
+                                    <td class="text-center">
+                                        <span class="badge @(u.Ativo ? "bg-success" : "bg-secondary")">@(u.Ativo ? "ATIVO" : "PENDENTE")</span>
+                                    </td>
+                                    <td class="text-end text-muted small">@u.DataCadastro.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="indiretos" class="tab-pane fade">
+            </div>
         </div>
     </div>
+
+    <script>
+            function copiarLink() {
+                var copyText = document.getElementById("linkRef");
+                copyText.select();
+                copyText.setSelectionRange(0, 99999); // Para mobile
+        
+                navigator.clipboard.writeText(copyText.value).then(() => {
+                    // Feedback visual no botão
+                    const btn = event.currentTarget;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<i class="bi bi-check-lg"></i> COPIADO!';
+                    btn.classList.replace('btn-gold', 'btn-success');
+            
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.classList.replace('btn-success', 'btn-gold');
+                    }, 2000);
+                });
+            }
+    </script>
+
 </div>
-
-<style>
-    .avatar-circle {
-        width: 35px;
-        height: 35px;
-        background: #d4af37;
-        color: black;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-    }
-</style>

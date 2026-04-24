@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OnClickSystem.Application.Services;
 using OnClickSystem.Domain.Entities;
 using OnClickSystem.Infrastructure.Data;
+using System;
 using System.Threading.Tasks;
 
 namespace OnClickSystem.Controllers
@@ -10,7 +11,7 @@ namespace OnClickSystem.Controllers
     public class CadastroController : Controller
     {
         private readonly UsuarioService _usuarioService;
-        private readonly OnClickContext _context; // Apenas para buscar nome do patrocinador na tela (leitura)
+        private readonly OnClickContext _context;
 
         public CadastroController(UsuarioService usuarioService, OnClickContext context)
         {
@@ -30,6 +31,7 @@ namespace OnClickSystem.Controllers
                 {
                     ViewBag.PatrocinadorNome = patro.Nome;
                     ViewBag.PatrocinadorID = patro.ID;
+                    ViewBag.PatrocinadorSugerido = patrocinador;
                 }
             }
             return View();
@@ -39,31 +41,41 @@ namespace OnClickSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Registrar(Usuario usuario, int? ID_Patrocinador)
         {
-            // Define o patrocinador vindo do Form
             usuario.ID_Patrocinador = ID_Patrocinador;
-
-            // Chama o serviço para tentar registrar com SEGURANÇA (Hash + verificação de email)
             var resultado = await _usuarioService.RegistrarUsuario(usuario);
 
             if (resultado.Sucesso)
             {
+                // --- LOG DE REDE ---
+                string infoPatro = ID_Patrocinador.HasValue ? $"Indicado por ID: {ID_Patrocinador}" : "Cadastro Direto";
+                await RegistrarLog("Rede", $"Novo usuário registrado: {usuario.Nome} ({usuario.Email}). Origem: {infoPatro}");
+
                 TempData["Sucesso"] = resultado.Mensagem;
                 return RedirectToAction("Index", "Login");
             }
             else
             {
-                // Se der erro (ex: email duplicado), volta para a tela mantendo os dados
                 ViewBag.Erro = resultado.Mensagem;
-
-                // Recupera nome do patrocinador para não perder na tela
                 if (ID_Patrocinador.HasValue)
                 {
                     var p = await _context.Usuarios.FindAsync(ID_Patrocinador);
                     if (p != null) { ViewBag.PatrocinadorNome = p.Nome; ViewBag.PatrocinadorID = p.ID; }
                 }
-
                 return View("Novo", usuario);
             }
+        }
+
+        private async Task RegistrarLog(string categoria, string detalhes)
+        {
+            var log = new LogSistema
+            {
+                DataHora = DateTime.Now,
+                UsuarioResponsavel = "Visitante/Novo Cadastro",
+                Acao = categoria,
+                Detalhes = detalhes
+            };
+            _context.LogsSistema.Add(log);
+            await _context.SaveChangesAsync();
         }
     }
 }

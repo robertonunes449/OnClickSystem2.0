@@ -55,5 +55,42 @@ namespace OnClickSystem.Controllers
 
             return View(diretos);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VincularPatrocinador(string codigoPatrocinador)
+        {
+            var idLogado = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+
+            // 1. Busca o patrocinador (por Nome ou Email, como no Cadastro)
+            var patrocinador = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Nome == codigoPatrocinador || u.Email == codigoPatrocinador);
+
+            if (patrocinador == null)
+            {
+                TempData["Erro"] = "Patrocinador não encontrado. Verifique o nome ou e-mail digitado.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // 2. Valida a segurança do vínculo (evitar ciclos ou auto-patrocínio)
+            var (sucesso, mensagem) = await _redeService.ValidarMudancaPatrocinador(idLogado, patrocinador.ID);
+
+            if (!sucesso)
+            {
+                TempData["Erro"] = mensagem;
+                return RedirectToAction(nameof(Index));
+            }
+
+            // 3. Efetua o vínculo
+            var usuario = await _context.Usuarios.FindAsync(idLogado);
+            usuario.ID_Patrocinador = patrocinador.ID;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Sucesso"] = $"Você agora faz parte da rede de {patrocinador.Nome}!";
+            return RedirectToAction(nameof(Index));
+        }
+
+
     }
 }

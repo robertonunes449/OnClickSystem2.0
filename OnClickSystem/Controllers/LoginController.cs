@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using OnClickSystem.Application.Services;
+using OnClickSystem.Infrastructure.Data;
+using OnClickSystem.Domain.Entities;
 using System;
 using System.Threading.Tasks;
 
@@ -10,11 +12,12 @@ namespace OnClickSystem.Controllers
     public class LoginController : Controller
     {
         private readonly AuthService _authService;
+        private readonly OnClickContext _context;
 
-        // Injeta apenas o serviço de Autenticação
-        public LoginController(AuthService authService)
+        public LoginController(AuthService authService, OnClickContext context)
         {
             _authService = authService;
+            _context = context;
         }
 
         public IActionResult Index(string returnUrl = null)
@@ -27,7 +30,6 @@ namespace OnClickSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Entrar(string email, string senha, bool lembrar, string returnUrl = null)
         {
-            // O Controller apenas delega a tarefa para o AuthService
             var resultado = await _authService.RealizarLogin(email, senha);
 
             if (resultado.Sucesso)
@@ -38,42 +40,48 @@ namespace OnClickSystem.Controllers
                     ExpiresUtc = lembrar ? DateTime.UtcNow.AddDays(7) : DateTime.UtcNow.AddMinutes(60)
                 };
 
-                // Cria o cookie no navegador
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    resultado.Principal,
-                    authProperties
-                );
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, resultado.Principal, authProperties);
 
-                // --- NOVA REGRA: TRAVA DE ATIVAÇÃO ---
-                // Verifica se no crachá está escrito que ele é "False" (Inativo)
+                // --- LOG DE SEGURANÇA ---
+                await RegistrarLog("Segurança", $"Login realizado com sucesso para o e-mail: {email}", email);
+
                 var statusAtivo = resultado.Principal.FindFirst("StatusAtivo")?.Value;
                 if (statusAtivo == "False")
                 {
                     TempData["Info"] = "Bem-vindo! Para liberar seu acesso ao painel, adquira seu Kit de Ativação.";
-                    return RedirectToAction("Index", "Loja"); // Joga ele pra Loja!
+                    return RedirectToAction("Index", "Loja");
                 }
-                // -------------------------------------
 
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return LocalRedirect(returnUrl);
 
                 return RedirectToAction("Index", "Home");
-            
-        }
+            }
 
-            // Se falhar
             ViewBag.Erro = resultado.Mensagem;
-            ViewBag.ReturnUrl = returnUrl;
             return View("Index");
         }
 
         public async Task<IActionResult> Sair()
         {
+            if (User.Identity.IsAuthenticated)
+                await RegistrarLog("Segurança", $"Usuário encerrou a sessão.");
+
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Login");
         }
 
-        public IActionResult AcessoNegado() => View();
+        private async Task RegistrarLog(string categoria, string detalhes, string userEmail = null)
+        {
+            var log = new LogSistema
+            {
+                DataHora = DateTime.Now,
+                UsuarioResponsavel = userEmail ?? User.Identity.Name ?? "Sistema",
+                Acao = categoria,
+                Detalhes = detalhes
+            };
+            _context.LogsSistema.Add(log);
+            await _context.SaveChangesAsync();
+        }
     }
 }

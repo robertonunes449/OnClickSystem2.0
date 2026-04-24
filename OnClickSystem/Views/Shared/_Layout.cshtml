@@ -99,7 +99,7 @@
                             <li class="px-3 text-gold-bright small text-uppercase fw-bold mb-2 mt-3">Administração</li>
 
                             <li>
-                                <a asp-controller="Admin" asp-action="Usuarios" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Admin" ? "active" : "")">
+                                <a asp-controller="Admin" asp-action="Usuarios" class="@(ViewContext.RouteData.Values["Action"].ToString() == "Usuarios" ? "active" : "")">
                                     <i class="fas fa-users-cog me-2 text-center" style="width: 25px;"></i> Usuários
                                 </a>
                             </li>
@@ -109,12 +109,12 @@
                                 </a>
                             </li>
                             <li>
-                                <a asp-controller="AdminFinanceiro" asp-action="Index" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "AdminFinanceiro" ? "active" : "")">
+                                <a asp-controller="Admin" asp-action="AprovarSaques" class="@(ViewContext.RouteData.Values["Action"].ToString() == "AprovarSaques" ? "active" : "")">
                                     <i class="fas fa-money-check-alt me-2 text-center" style="width: 25px;"></i> Aprovar Saques
                                 </a>
                             </li>
                             <li>
-                                <a asp-controller="Logs" asp-action="Index" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Logs" ? "active" : "")">
+                                <a asp-controller="Admin" asp-action="Relatorios" class="@(ViewContext.RouteData.Values["Action"].ToString() == "Relatorios" ? "active" : "")">
                                     <i class="fas fa-chart-pie me-2 text-warning text-center" style="width: 25px;"></i> Relatórios & Logs
                                 </a>
                             </li>

@@ -1,83 +1,102 @@
 ﻿@model OnClickSystem.Domain.Entities.Usuario
 @{
-    ViewData["Title"] = "Gerenciar Membro";
+    ViewData["Title"] = $"Perfil de {Model.Nome}";
 }
 
-<div class="container py-4">
+<div class="container py-4 fade-in-up">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="text-gold fw-bold"><i class="bi bi-person-vcard me-2"></i> Perfil do Membro</h3>
-        <a asp-controller="Rede" asp-action="Index" class="btn btn-outline-secondary btn-sm">Voltar para Rede</a>
+        <a asp-controller="Admin" asp-action="Usuarios" class="btn btn-link text-muted p-0 text-decoration-none">
+            <i class="bi bi-arrow-left"></i> Voltar para a Lista
+        </a>
     </div>
 
-    <div class="card bg-dark border-secondary shadow mb-4">
-        <div class="card-body p-4">
-            <div class="row align-items-center">
-                <div class="col-md-2 text-center">
-                    <div class="rounded-circle bg-secondary d-flex justify-content-center align-items-center mx-auto" style="width: 80px; height: 80px;">
-                        <i class="bi bi-person text-white fs-1"></i>
+    <div class="card card-premium shadow-lg border-gold overflow-hidden">
+        @* Cabeçalho sem foto - Foco em Tipografia *@
+        <div class="card-header bg-black text-center py-5 border-secondary border-opacity-25">
+            <h2 class="text-white fw-bold mb-1" style="letter-spacing: -1px;">@Model.Nome</h2>
+            <p class="text-gold small fw-bold mb-3 text-uppercase" style="letter-spacing: 2px;">@Model.Perfil</p>
+            <span class="badgePremium @(Model.Ativo ? "badgePremium-success" : "badgePremium-warning")">
+                @(Model.Ativo ? "CONTA ATIVA" : "AGUARDANDO ATIVAÇÃO")
+            </span>
+        </div>
+        
+        <div class="card-body p-4 p-md-5">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <h6 class="text-gold fw-bold text-uppercase small mb-4">Dados do Associado</h6>
+                    <div class="row g-4">
+                        <div class="col-6">
+                            <label class="text-uppercase text-muted small fw-bold d-block mb-1">E-mail</label>
+                            <span class="text-white">@Model.Email</span>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-uppercase text-muted small fw-bold d-block mb-1">Desde</label>
+                            <span class="text-white">@Model.DataCadastro.ToString("dd/MM/yyyy")</span>
+                        </div>
+                        <div class="col-12">
+                            <label class="text-uppercase text-muted small fw-bold d-block mb-1">Chave PIX (@Model.TipoChavePix)</label>
+                            <span class="text-gold font-monospace">@(string.IsNullOrEmpty(Model.ChavePix) ? "Não informada" : Model.ChavePix)</span>
+                        </div>
+                        <div class="col-12">
+                            <label class="text-uppercase text-muted small fw-bold d-block mb-1">Patrocinador</label>
+                            <span class="text-white-50 small">@(Model.Patrocinador?.Nome ?? "Direto (sem indicação)")</span>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-10">
-                    <h2 class="text-white mb-1">@Model.Nome</h2>
-                    <p class="text-muted mb-2">@Model.Email</p>
-                    <div class="d-flex gap-3 small">
-                        <span class="text-gold"><i class="bi bi-calendar-check me-1"></i> Cadastro: @Model.DataCadastro.ToString("dd/MM/yyyy")</span>
-                        <span class="text-secondary"><i class="bi bi-person-up me-1"></i> Patrocinador: @(Model.Patrocinador?.Nome ?? "Direto da Empresa")</span>
+
+                <div class="col-lg-6 bg-black bg-opacity-25 p-4 rounded-3 border border-secondary border-opacity-10 shadow-inner">
+                    <h6 class="text-white-50 fw-bold text-uppercase small mb-4 text-center">Painel de Controle</h6>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <form asp-action="AlterarPerfilDetalhes" method="post" class="d-flex gap-2">
+                                <input type="hidden" name="id" value="@Model.ID" />
+                                <select name="novoPerfil" class="form-select bg-dark text-white border-secondary select-premium">
+                                    <!option value="Comum" @(Model.Perfil == "Comum" ? "selected" : "")>Afiliado</!option>
+                                    <!option value="Cliente" @(Model.Perfil == "Cliente" ? "selected" : "")>Cliente</!option>
+                                    <!option value="Admin" @(Model.Perfil == "Admin" ? "selected" : "")>Administrador</!option>
+                                </select>
+                                <button type="submit" class="btn btn-gold fw-bold px-4">ALTERAR</button>
+                            </form>
+                        </div>
+                        
+                        <div class="col-6">
+                            <form asp-action="AlternarStatus" method="post">
+                                <input type="hidden" name="id" value="@Model.ID" />
+                                <button type="submit" class="btn @(Model.Ativo ? "btn-outline-danger" : "btn-gold") w-100 fw-bold py-2">
+                                    @(Model.Ativo ? "BLOQUEAR" : "ATIVAR")
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="col-6">
+                            <form asp-action="Deletar" method="post" onsubmit="return confirm('Excluir permanentemente?')">
+                                <input type="hidden" name="id" value="@Model.ID" />
+                                <button type="submit" class="btn btn-premium-danger w-100 fw-bold py-2">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card bg-black border-secondary h-100 p-3">
-                <h6 class="text-gold fw-bold mb-3 small">ALTERAR CARGO</h6>
-                <form asp-action="AlterarPerfilDetalhes" method="post">
-                    <input type="hidden" name="id" value="@Model.ID" />
-                    <select name="novoPerfil" class="form-select bg-dark text-white border-secondary mb-3">
-                        <!option value="Admin" @(Model.Perfil == "Admin" ? "selected" : "")>Administrador</!option>
-                        <!option value="Comum" @(Model.Perfil == "Comum" ? "selected" : "")>Afiliado</!option>
-                        <!option value="Cliente" @(Model.Perfil == "Cliente" ? "selected" : "")>Cliente</!option>
-                    </select>
-                    <button type="submit" class="btn btn-gold w-100 fw-bold">SALVAR CARGO</button>
-                </form>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card bg-black border-secondary h-100 p-3 text-center">
-                <h6 class="text-gold fw-bold mb-3 small text-start text-uppercase">Status da Conta</h6>
-                <div class="my-auto">
-                    @if (Model.Ativo)
-                    {
-                        <span class="badge bg-success px-4 py-2 mb-3">CONTA ATIVA</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-danger px-4 py-2 mb-3">PENDENTE</span>
-                    }
-                    <form asp-action="AlternarStatus" method="post">
-                        <input type="hidden" name="id" value="@Model.ID" />
-                        <button type="submit" class="btn @(Model.Ativo ? "btn-outline-danger" : "btn-success") w-100 fw-bold">
-                            @(Model.Ativo ? "DESATIVAR" : "ATIVAR AGORA")
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card bg-black border-danger h-100 p-3">
-                <h6 class="text-danger fw-bold mb-3 small">ZONA CRÍTICA</h6>
-                <p class="text-muted small">Cuidado! A exclusão é permanente e removerá todos os dados do usuário.</p>
-                <form asp-action="Deletar" method="post" onsubmit="return confirm('Tem certeza absoluta que deseja excluir este membro?')">
-                    <input type="hidden" name="id" value="@Model.ID" />
-                    <button type="submit" class="btn btn-danger w-100 fw-bold">
-                        <i class="bi bi-trash me-2"></i>EXCLUIR DEFINITIVAMENTE
-                    </button>
-                </form>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Estilos Premium locais para o Detalhes */
+    .border-gold { border: 1px solid #d4af37 !important; border-top: 4px solid #d4af37 !important; }
+    
+    /* Badges com brilho tecnológico */
+    .badgePremium { padding: 5px 15px; border-radius: 50px; font-size: 0.7rem; font-weight: bold; border: 1px solid; }
+    .badgePremium-success { background: rgba(25, 135, 84, 0.1); color: #198754; border-color: #198754; box-shadow: 0 0 10px rgba(25, 135, 84, 0.2); }
+    .badgePremium-warning { background: rgba(212, 175, 55, 0.1); color: #d4af37; border-color: #d4af37; box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+
+    /* Inputs e Selects Sombreados */
+    .select-premium { border-bottom: 2px solid #d4af37; padding-left: 10px; border-radius: 0; }
+    
+    /* Botões com elevação tecnológica */
+    .btn-w-100 { padding-top: 10px; padding-bottom: 10px; }
+    .btn-premium-danger { background-color: transparent; color: #dc3545; border: 2px solid #dc3545; transition: 0.3s; }
+    .btn-premium-danger:hover { background-color: #dc3545; color: white; box-shadow: 0 0 15px rgba(220, 53, 69, 0.5); }
+</style>
