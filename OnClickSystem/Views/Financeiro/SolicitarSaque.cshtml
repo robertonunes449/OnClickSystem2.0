@@ -1,49 +1,68 @@
-﻿@model SolicitacaoSaqueDTO
+﻿@model OnClickSystem.Application.DTOs.SolicitacaoSaqueDTO
 @{
     ViewData["Title"] = "Solicitar Saque";
+    // Pegamos o saldo que o Controller enviou
+    decimal saldoDisponivel = ViewBag.SaldoDisponivel ?? 0m;
 }
 
-<div class="container d-flex justify-content-center align-items-center fade-in-up" style="min-height: 70vh;">
-    <div class="card card-premium p-4 p-md-5 shadow-lg border-gold" style="max-width: 480px; width: 100%;">
-        
-        <div class="text-center mb-4">
-            <div class="icon-circle bg-gold bg-opacity-10 d-inline-flex mb-3">
-                <i class="bi bi-cash-stack text-gold fs-2"></i>
-            </div>
-            <h2 class="fw-bold text-white">Novo Saque</h2>
-            <p class="text-muted small">O valor será transferido para sua chave Pix cadastrada.</p>
-        </div>
-
-        <div class="bg-dark bg-opacity-50 rounded-4 p-3 mb-4 text-center border border-secondary border-opacity-25">
-            <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">Saldo Disponível</small>
-            <span class="fs-3 fw-bold text-gold">R$ @(ViewBag.Saldo?.ToString("N2") ?? "0,00")</span>
-        </div>
-
-        <form asp-action="SolicitarSaque" method="post">
-            <div class="mb-4">
-                <label class="form-label text-muted small ps-1">VALOR DO SAQUE</label>
-                <div class="input-group input-group-lg border-bottom border-secondary">
-                    <span class="input-group-text bg-transparent border-0 text-gold fs-4">R$</span>
-                    <input type="number" asp-for="Valor" step="0.01" class="form-control bg-transparent border-0 text-white fs-2 fw-bold px-0 focus-none" placeholder="0,00" required>
+<div class="container py-5 fade-in-up">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            
+            <div class="card card-premium bg-black border-gold shadow-lg p-4">
+                <div class="text-center mb-4">
+                    <div class="bg-gold bg-opacity-10 d-inline-block p-3 rounded-circle mb-2">
+                        <i class="bi bi-cash-coin text-gold fs-1"></i>
+                    </div>
+                    <h3 class="text-white fw-bold mb-0">Solicitar Saque</h3>
+                    <p class="text-muted small">O valor será transferido para sua chave PIX.</p>
                 </div>
+
+                <div class="bg-dark p-3 rounded-3 mb-4 text-center border border-secondary border-opacity-25">
+                    <span class="text-muted small text-uppercase fw-bold d-block">Seu Saldo Disponível</span>
+                    <h2 class="text-gold fw-bold mb-0">R$ @saldoDisponivel.ToString("N2")</h2>
+                </div>
+
+                @* IMPORTANTE: asp-action deve ser ConfirmarSaque *@
+                <form asp-controller="Financeiro" asp-action="ConfirmarSaque" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Quanto deseja sacar?</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-black border-secondary text-gold">R$</span>
+                            @* O nome 'Valor' deve bater com o DTO *@
+                            <input asp-for="Valor" type="number" step="0.01" class="form-control bg-dark border-secondary text-white fs-4 py-2" placeholder="0,00" required />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Tipo de Chave</label>
+                        @* O nome 'TipoChave' deve bater com o DTO *@
+                        <select asp-for="TipoChave" class="form-select bg-dark border-secondary text-white">
+                            <option value="CPF">CPF</option>
+                            <option value="Email">E-mail</option>
+                            <option value="Telefone">Celular</option>
+                            <option value="Aleatoria">Chave Aleatória</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Sua Chave PIX</label>
+                        @* O nome 'ChavePix' deve bater com o DTO *@
+                        <input asp-for="ChavePix" type="text" class="form-control bg-dark border-secondary text-white" placeholder="Insira sua chave aqui..." required />
+                    </div>
+
+                    <button type="submit" class="btn btn-gold w-100 fw-bold py-3 shadow">
+                        CONFIRMAR E SOLICITAR <i class="bi bi-check2-circle ms-1"></i>
+                    </button>
+                    
+                    <a asp-action="Index" class="btn btn-link text-muted w-100 mt-3 text-decoration-none small">
+                        Cancelar e Voltar
+                    </a>
+                </form>
             </div>
 
-            <div class="mb-4">
-                <label class="form-label text-muted small ps-1">CHAVE PIX</label>
-                <input type="text" asp-for="ChavePix" class="form-control form-control-premium bg-dark border-secondary py-3" placeholder="Confirme sua chave Pix" required>
-            </div>
-
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-gold btn-lg py-3 fw-bold shadow">
-                    CONFIRMAR <i class="bi bi-arrow-right ms-2"></i>
-                </button>
-                <a href="/Financeiro/Index" class="btn btn-link text-muted text-decoration-none mt-2 small">Cancelar</a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
-
-<style>
-    .focus-none:focus { background-color: transparent !important; box-shadow: none !important; color: white !important; }
-    .icon-circle { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-</style>

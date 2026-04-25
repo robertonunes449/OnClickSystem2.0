@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using OnClickSystem.Domain.Entities;
 using OnClickSystem.Infrastructure.Data;
-using OnClickSystem.Application.ViewModels;
 using OnClickSystem.Application.DTOs;
 
 namespace OnClickSystem.Application.Services
@@ -19,64 +18,77 @@ namespace OnClickSystem.Application.Services
             _context = context;
         }
 
-        // 1. Calcula o saldo atual (Créditos - Débitos)
+        // 1. CALCULA O SALDO: Soma Comissões + Créditos - Débitos
         public async Task<decimal> CalcularSaldoDisponivel(int userId)
         {
-            var transacoes = await _context.Transacoes
-                .Where(t => t.ID_Usuario == userId)
-                .ToListAsync();
+            // 1. A fonte real de ganhos: Tabela de Comissões (os R$ 950)
+            var totalComissoes = await _context.Comissoes
+                .Where(c => c.ID_Beneficiario == userId)
+                .SumAsync(c => (decimal?)c.Valor) ?? 0;
 
-            var creditos = transacoes.Where(t => t.Tipo == "Credito").Sum(t => t.Valor);
-            var debitos = transacoes.Where(t => t.Tipo == "Debito").Sum(t => t.Valor);
+            // 2. A fonte real de gastos/saques: Tabela de Transações (Apenas Débitos)
+            var totalDebitos = await _context.Transacoes
+                .Where(t => t.ID_Usuario == userId && t.Tipo == "Debito")
+                .SumAsync(t => (decimal?)t.Valor) ?? 0;
 
-            return creditos - debitos;
+            // O saldo é o que ganhou na rede menos o que já saiu da conta
+            return totalComissoes - totalDebitos;
         }
 
-        // 2. Processa o pedido de saque com segurança (Transação de Banco de Dados)
-        public async Task<(bool Sucesso, string Mensagem)> ProcessarSolicitacaoSaque(int userId, SolicitacaoSaque pedido)
+
+        public async Task<(bool Sucesso, string Mensagem)> ProcessarSolicitacaoSaque(int userId, SolicitacaoSaqueDTO dto)
         {
-            // Validações básicas
-            if (pedido.Valor <= 0) return (false, "Valor inválido.");
+            System.Diagnostics.Debug.WriteLine($"---> Iniciando saque para user {userId}, valor {dto.Valor}");
 
-            // Verifica saldo
-            var saldoAtual = await CalcularSaldoDisponivel(userId);
-            if (pedido.Valor > saldoAtual) return (false, "Saldo insuficiente.");
+            if (dto.Valor <= 0) return (false, "Valor inválido.");
 
-            // Inicia uma transação segura (ou tudo funciona, ou nada muda)
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            var saldo = await CalcularSaldoDisponivel(userId);
+            if (dto.Valor > saldo) return (false, "Saldo insuficiente.");
+
             try
             {
-                // A. Cria o registro do pedido
-                pedido.ID_Usuario = userId;
-                pedido.DataSolicitacao = DateTime.Now;
-                pedido.Status = "Pendente";
-                _context.SolicitacoesSaque.Add(pedido);
-
-                // B. Cria o débito imediato no extrato
-                var debito = new Transacao
+                // 1. O Pedido de Saque
+                var pedido = new SolicitacaoSaque
                 {
                     ID_Usuario = userId,
-                    Valor = pedido.Valor,
+                    Valor = dto.Valor,
+                    TipoChave = dto.TipoChave,
+                    ChavePix = dto.ChavePix,
+                    DataSolicitacao = DateTime.Now,
+                    Status = "Pendente"
+                };
+                _context.SolicitacoesSaque.Add(pedido);
+
+                // 2. O Débito (Para baixar o saldo na hora)
+                _context.Transacoes.Add(new Transacao
+                {
+                    ID_Usuario = userId,
+                    Valor = dto.Valor,
                     Tipo = "Debito",
                     Data = DateTime.Now,
-                    Descricao = $"Saque Solicitado via PIX ({pedido.ChavePix})"
-                };
-                _context.Transacoes.Add(debito);
+                    Descricao = $"Saque Solicitado (PIX: {dto.ChavePix})"
+                });
 
-                // Salva e confirma
+                // 3. O Log (Para o Admin ver)
+                _context.LogsSistema.Add(new LogSistema
+                {
+                    DataHora = DateTime.Now,
+                    UsuarioResponsavel = "Sistema/Financeiro",
+                    Acao = "Financeiro",
+                    Detalhes = $"Saque solicitado pelo ID {userId}: R$ {dto.Valor:N2}"
+                });
+
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
+                System.Diagnostics.Debug.WriteLine("---> Saque salvo com sucesso no banco!");
 
-                return (true, "Saque solicitado! O valor foi reservado do seu saldo.");
+                return (true, "Solicitação enviada com sucesso! Seu saque está em análise.");
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-                return (false, "Erro ao processar saque: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine($"---> ERRO NO SAQUE: {ex.Message}");
+                return (false, "Erro ao salvar no banco: " + ex.Message);
             }
         }
-
-        // 3. Busca o extrato completo
         public async Task<List<Transacao>> ObterExtrato(int userId)
         {
             return await _context.Transacoes
@@ -85,7 +97,6 @@ namespace OnClickSystem.Application.Services
                 .ToListAsync();
         }
 
-        // 4. Busca histórico de saques
         public async Task<List<SolicitacaoSaque>> ObterMeusSaques(int userId)
         {
             return await _context.SolicitacoesSaque
@@ -94,26 +105,8 @@ namespace OnClickSystem.Application.Services
                 .ToListAsync();
         }
 
-        public async Task<(bool Sucesso, string Mensagem)> ProcessarSolicitacaoSaque(int userId, SolicitacaoSaqueDTO dto)
-        {
-            var pedido = new SolicitacaoSaque
-            {
-                Valor = dto.Valor,
-                ChavePix = dto.ChavePix
-                // adiciona outros campos se existirem
-            };
-
-            return await ProcessarSolicitacaoSaque(userId, pedido);
-        }
-
-        public Task<List<SaquePendenteDTO>> ObterSaquesPendentesAsync()
-        {
-            return Task.FromResult(new List<SaquePendenteDTO>());
-        }
-
-        public Task AprovarSaqueAsync(int id)
-        {
-            return Task.CompletedTask;
-        }
+        // Métodos obrigatórios da Interface
+        public Task<List<SaquePendenteDTO>> ObterSaquesPendentesAsync() => Task.FromResult(new List<SaquePendenteDTO>());
+        public Task AprovarSaqueAsync(int id) => Task.CompletedTask;
     }
 }

@@ -21,75 +21,73 @@ namespace OnClickSystem.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // --- TRAVA DE SEGURANÇA ---
             if (User.FindFirst("StatusAtivo")?.Value == "False")
             {
                 TempData["Info"] = "Você precisa adquirir um Kit de Ativação antes de acessar o Financeiro.";
                 return RedirectToAction("Index", "Loja");
             }
-            // --------------------------
 
-
-            // Pega o ID do usuário logado de forma segura
             var userId = GetIdLogado();
 
-            // Busca dados usando o Service
-            ViewBag.SaldoTotal = await _financeiroService.CalcularSaldoDisponivel(userId);
-            ViewBag.MeusSaques = await _financeiroService.ObterMeusSaques(userId);
+            // 1. O saldo que o Service calcula (Comissões + Créditos - Débitos)
+            decimal saldoTotal = await _financeiroService.CalcularSaldoDisponivel(userId);
 
+            // 2. Buscamos o extrato para calcular os detalhes da tela
             var extrato = await _financeiroService.ObterExtrato(userId);
 
-            return View(extrato);
+            // --- SINCRONIZAÇÃO COM A VIEW ---
+            ViewBag.Saldo = saldoTotal; // Agora o nome bate com a View!
+            ViewBag.GanhosTotais = extrato.Where(t => t.Tipo == "Credito").Sum(t => t.Valor);
+            ViewBag.SaquesEfetuados = extrato.Where(t => t.Tipo == "Debito").Sum(t => t.Valor);
+            // --------------------------------
+
+            return View(extrato); // Enviamos o extrato como Model principal
         }
 
-        public IActionResult SolicitarSaque()
+        public async Task<IActionResult> SolicitarSaque()
         {
+            var userId = GetIdLogado();
+
+            // Calculamos o saldo para exibir na tela de saque
+            ViewBag.SaldoDisponivel = await _financeiroService.CalcularSaldoDisponivel(userId);
+
             return View();
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarSaque(SolicitacaoSaqueDTO pedido)
         {
-            if (!ModelState.IsValid)
-            {
-                TempData["Erro"] = "Verifique os dados informados no formulário.";
-                return View("SolicitarSaque", pedido);
-            }
-
             var userId = GetIdLogado();
 
-            var dto = new SolicitacaoSaqueDTO
-            {
-                // Preenche com os dados do pedido
-                Valor = pedido.Valor,
-                // adiciona outros campos se tiver
-            };
-
-            var resultado = await _financeiroService.ProcessarSolicitacaoSaque(userId, dto);
+            var resultado = await _financeiroService.ProcessarSolicitacaoSaque(userId, pedido);
 
             if (resultado.Sucesso)
             {
+                // Esta "etiqueta" TempData precisa ser lida na Index
                 TempData["Sucesso"] = resultado.Mensagem;
                 return RedirectToAction("Index");
             }
-            else
-            {
-                TempData["Erro"] = resultado.Mensagem;
-                return RedirectToAction("SolicitarSaque");
-            }
+
+            TempData["Erro"] = resultado.Mensagem;
+            return RedirectToAction("SolicitarSaque");
         }
+
         private int GetIdLogado()
         {
-            // Pega o ID de forma segura sem dar erro se estiver nulo
+            // Tenta pegar pelo NameIdentifier (Padrão)
             var claimId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Tenta converter para número inteiro
+            // Se falhar, tenta pegar por uma claim chamada simplesmente "Id" ou "ID"
+            if (string.IsNullOrEmpty(claimId))
+                claimId = User.FindFirst("Id")?.Value ?? User.FindFirst("ID")?.Value;
+
             if (int.TryParse(claimId, out int userId))
             {
                 return userId;
             }
 
-            return 0; // Se falhar, retorna 0 em vez de quebrar a página
+            return 0;
         }
     }
 }

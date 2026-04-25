@@ -1,11 +1,13 @@
-﻿namespace OnClickSystem.Application.DTOs
+﻿using System;
+
+namespace OnClickSystem.Application.DTOs
 {
     public class SaquePendenteDTO
     {
-        public int Id { get; set; }
-        public string ClienteNome { get; set; }
+        public int ID { get; set; }
+        public string NomeUsuario { get; set; }
         public decimal Valor { get; set; }
-        public string DataSolicitacao { get; set; }
-        public string Status { get; set; }
+        public DateTime Data { get; set; }
+        public string ChavePix { get; set; }
     }
 }
