@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnClickSystem.Application",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnClickSystem.Infrastructure", "OnClickSystem.Infrastructure\OnClickSystem.Infrastructure.csproj", "{8D8396DA-4779-4DF8-8D15-EEA746B2E3F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnClickSystem.Desktop", "..\OnClickSystem Desktop\OnClickSystem.Desktop\OnClickSystem.Desktop.csproj", "{43F7E3B4-EEBC-8EB1-8602-0BED9CE1D013}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnClickSystem.Desktop", "OnClickSystem.Desktop\OnClickSystem.Desktop.csproj", "{0285E5F4-6914-9CA9-8F27-842E7D008127}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{8D8396DA-4779-4DF8-8D15-EEA746B2E3F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D8396DA-4779-4DF8-8D15-EEA746B2E3F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D8396DA-4779-4DF8-8D15-EEA746B2E3F6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{43F7E3B4-EEBC-8EB1-8602-0BED9CE1D013}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{43F7E3B4-EEBC-8EB1-8602-0BED9CE1D013}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{43F7E3B4-EEBC-8EB1-8602-0BED9CE1D013}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{43F7E3B4-EEBC-8EB1-8602-0BED9CE1D013}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0285E5F4-6914-9CA9-8F27-842E7D008127}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0285E5F4-6914-9CA9-8F27-842E7D008127}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0285E5F4-6914-9CA9-8F27-842E7D008127}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0285E5F4-6914-9CA9-8F27-842E7D008127}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

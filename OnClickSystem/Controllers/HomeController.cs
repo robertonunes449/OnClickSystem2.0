@@ -8,6 +8,7 @@ using OnClickSystem.Infrastructure.Data;
 using OnClickSystem.Application.Services;
 using OnClickSystem.Domain.Entities; // ADICIONADO PARA O ASYNC
 
+
 namespace OnClickSystem.Controllers
 {
     [Authorize]
