@@ -121,9 +121,7 @@ O projeto segue um ciclo de vida ágil. Abaixo, o status atual do que foi entreg
   - [x] Histórico/Ledger imutável de transações financeiras[cite: 4].
 
 - [ ] **Fase 4: Expansão, Automação e UX (Próximos Passos)**
-  - [ ] **Identidade Kitsune:** Aprofundar o tema visual (animações e assets inspirados em pop-culture/animes japoneses).
-  - [ ] **Migração .NET 10:** Atualizar bibliotecas e o ecossistema Core para aproveitar os novos recursos de performance da Microsoft.
-  - [ ] **Gateways de Pagamento:** Integração com APIs externas (Mercado Pago, Stripe) para baixa automática de faturas e processamento automatizado das filas de PIX.
+   - [ ] **Gateways de Pagamento:** Integração com APIs externas (Mercado Pago, Stripe) para baixa automática de faturas e processamento automatizado das filas de PIX.
   - [ ] **Evolução do Dashboard Desktop:** Implementação de novos relatórios dinâmicos de mapa de calor da rede de afiliados.
 
 ---
